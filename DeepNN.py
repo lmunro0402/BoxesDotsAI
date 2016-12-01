@@ -2,31 +2,20 @@
 #
 # Author: Luke Munro
 from sigNeuron import *
-from BoxesDots import *
 import numpy as np
 
 
 """Neural net class for systems with ONE hidden layer, 
 				eventually will work generically for more. """
-class Net(Player):
-	def __init__(self, nodes, gridSize):
-		Player.__init__(self, "AI") # Net is istanceof Player object
-# ------ One Hidden Layer ------
-# Nodes = # nodes in layer | sizeX = # data points | ouptuts = # possible ouptuts
-# ----------- All sizes do NOT CONTAIN BIAS UNITS -----------
-		self.gridSize = gridSize
-		self.sizeX = 2*(gridSize*(gridSize+1)) #+2 
-# ------ Hidden layer variables -------------------
-		self.hidden = []
-		self.sizeH = nodes
-#-------- Output variables ----------
-		self.outs = []
-		self.sizeO = self.sizeX 
-		for i in range(nodes):
-			self.hidden.append(Neuron(self.sizeX+1, i))
-		for i in range(self.sizeO): 
-			self.outs.append(Neuron(self.sizeH+1, i))  
-		self.layers = [self.hidden, self.outs]
+class Net():
+	def __init__(self, sizeIn, layerList):
+		self.sizeIn = sizeIn
+		self.layers = [[] for x in range(len(layerList))]
+		for i in range(sizeIn):
+			self.layers[i].append(Neuron(self.sizeIn+1, i))
+		for i in range(len(layerList)-1):
+			self.layers[i+1].append(Neuron(len(self.layers[i])+1, i))
+			print self.layers
 
 
 	def getWeights(self): 
@@ -208,74 +197,7 @@ def onlyLegal(moves, justMoves): # CONDENSE
 
 # --------------- for testing ----------------------------------
 def main():
-	y = np.zeros(shape=(12, 1))
-	t = np.zeros(shape=(12, 1))+0.001
-	
-	#y = addBias(y)
-	x= [[ 0.44841772], [ 0.44841772], [ 0.44841772], [ 0.44841772], [ 0.3939411 ], [ 0.3939411 ], [ 0.3939411 ], [ 0.3939411 ], [ 0.43916391], [ 0.43916391], [ 0.43916391], [ 0.43916391]]
-	# print y, y.shape
-	a4 = np.zeros(shape=(12, 1))
-	for i in range(12):
-		a4[i] = x[i]
-	aI = Net(10, 2)
-	aI.loadWeights()
-	a = []
-	z = []
-	a1 = getData()
-	justMoves = a1 #list(a0[:len(a0)-2])
-	a1 = addBias(a1)
-	print a1, a1.shape
-	a.append(a1)
-	z2 = computeZ(aI.layers[0], a1)
-	z.append(z2)
-	a2 = sigmoid(z2)
-	a2 = addBias(a2)
-	a.append(a2)
-	z3 = computeZ(aI.layers[1], a2)
-	z.append(z3)
-	a3 = sigmoid(z3)
-	a.append(a3)
-	print "------- costs -------"
-	print costLog(y, a3)
-	# print costMeanSquared(y, a3)
-	delta3log = a3 - y
-	delta3squared = (a3 - y) * sigGradient(z3)
-	print "------- deltas3s -------"
-	print delta3log, delta3log.shape
-	# print ''
-	# print delta3squared
-	w = aI.getWeights()
-	print "----- regularization -----"
-	print reg(w, 1)
-	print "------- delta2s --------"
-	print "weight dims - " + str(w[0].shape), str(w[1].shape)
-	wNoBias = np.delete(w[1], 0, axis=1)
-	delta2log = np.dot(wNoBias.transpose(), delta3log) * sigGradient(z2)
-	delta2squared = np.dot(wNoBias.transpose(), delta3squared) * sigGradient(z2)
-	print delta2log, delta2log.shape
-	# print ""
-	# print delta2squared
-	w2Gradlog = delta3log * a2.transpose() 
-	w2GradSquared = delta3squared * a2.transpose()
-	print"-------- gradients weights 2 --------"
-	print w2Gradlog, w2Gradlog.shape
-	# print w2GradSquared
-	print "------- gradient weights 1 --------"
-	w1Gradlog = delta2log * a1.transpose()
-	w1GradSquared = delta2squared * a1.transpose()
-	print w1Gradlog, w1Gradlog.shape
-	# print w1GradSquared 
-	print "--------- weights ----------"
-	print w[0]
-	print ""
-	print w[1]
-	print "--------- added gradient ---------"
-	w1 = w[0] + w1Gradlog
-	w2 = w[1] + w2Gradlog
-	print w1
-	print ""
-	print w2
-
+	AI = Net(3, [2, 3])
 
 	# print sigmoid(a)
 	# print 1 - sigmoid(a)
