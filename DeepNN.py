@@ -10,23 +10,27 @@ import numpy as np
 class Net():
 	def __init__(self, sizeIn, layerList):
 		self.sizeIn = sizeIn
-		self.layers = [[] for x in range(len(layerList))]
-		for i in range(sizeIn):
-			self.layers[i].append(Neuron(self.sizeIn+1, i))
-		for i in range(len(layerList)-1):
-			self.layers[i+1].append(Neuron(len(self.layers[i])+1, i))
-			print self.layers
+		self.numLayers = len(layerList)
+		self.layerList = layerList
+		self.layers = [[] for x in range(self.numLayers)]
+		for i in range(layerList[0]):
+			self.layers[0].append(Neuron(self.sizeIn+1, i))
+		for i, nodes in enumerate(layerList[1:]):
+			for x in range(nodes):
+				self.layers[i+1].append(Neuron(len(self.layers[i])+1, x))
 
 
 	def getWeights(self): 
-		layer1 = np.zeros(shape=(self.sizeH, self.sizeX+1))
-		layer2 = np.zeros(shape=(self.sizeO, self.sizeH+1))
-		for i, node in enumerate(self.hidden):
-			layer1[i] = node.getW()
-		for i, node in enumerate(self.outs):
-			layer2[i] = node.getW()
-		weights = [layer1, layer2]
-		return weights
+		layerWeights = []
+		layerWeights.append(np.zeros(shape=(self.layerList[0], self.sizeIn+1)))
+		for i in range(self.numLayers-1):
+			layerWeights.append(np.zeros(shape=(self.layerList[i+1], self.layerList[i]+1)))
+		for i, layer in enumerate(self.layers):
+			for x, node in enumerate(layer):
+				layerWeights[i][x] = node.getW()
+		return layerWeights
+
+# -------------------------------------------------------------------------------------------------------------------
 
 	def writeWeights(self):
 		layerWeights = self.getWeights()
@@ -199,11 +203,7 @@ def onlyLegal(moves, justMoves): # CONDENSE
 def main():
 	AI = Net(3, [2, 3])
 
-	# print sigmoid(a)
-	# print 1 - sigmoid(a)
-	# grad = sigGradient(z)
-	# delta3 = y - a # * a2
-	# delta2 = delta3 * sigGradient(z2) # a1
+
 
 
 if __name__ == '__main__':
