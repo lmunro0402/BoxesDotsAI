@@ -63,11 +63,13 @@ class Net():
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
+		# REMOVE BIAS IN OUTPUT
+		out = np.delete(a[self.numLayers], 0, axis=0)
 		moves = findMoves(a[self.numLayers])
 		legalMoves = onlyLegal(moves, justMoves)
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		return [int(x) for x in nextMoves[0]]
-		
+
 # -------------------------------------------------------------------------------------------------------------------
 
 
@@ -77,33 +79,45 @@ class Net():
 		z = []
 		a1 = getData()
 		justMoves = a1 
-		a1 = addBias(a1)
-		a.append(a1)
-		z2 = computeZ(self.layers[0], a1)
-		z.append(z2)
-		a2 = sigmoid(z2)
-		a2 = addBias(a2)
-		a.append(a2)
-		z3 = computeZ(self.layers[1], a2)
-		z.append(z3)
-		a3 = sigmoid(z3)
-		a.append(a3)
-		print costMeanSquared(y, a3)
-		delta3 = (a3 - y)  * sigGradient(z3)
-		layerWeights = self.getWeights()
-		w1 = layerWeights[0]
-		w2 = layerWeights[1]
-		w1NoBias = rmBias(w1)
-		delta2 = np.dot(w1NoBias, delta3) * sigGradient(z2)
-		Grad1 = delta2 * a1.transpose()
-		Grad2 = delta3 * a2.transpose()
-		w1 += -alpha * Grad1
-		w2 += -alpha * Grad2
-		# Updating weights here
-		for i, weights in enumerate(w1):
-			self.hidden[i].assignW(weights)
-		for i, weights in enumerate(w2):
-			self.outs[i].assignW(weights)
+		a.append(addBias(a1))
+		for i in range(self.numLayers):
+			z.append(computeZ(self.layers[i], a[i]))
+			temp = sigmoid(z[i])
+			a.append(addBias(temp))
+		# REMOVE BIAS IN OUTPUT
+		out = np.delete(a[self.numLayers], 0, axis=0)
+
+		noBiasWeights = self.getWeights()
+		# REMOVE BIAS WEIGHTS
+		for i, weights in enumerate(noBiasWeights):
+			noBiasWeights[i] = rmBias(weights)
+		deltas = []
+		initialDelta = (out - y) * sigGradient(z[len(z)-1])
+		deltas.append(initialDelta)
+		print deltas
+		# REALLY CHECK THIS 
+		for x in range(self.numLayers-2, -1, -1):
+			print x
+			deltaIndex = (self.numLayers-2) - x
+			delta = np.dot(noBiasWeights[x+1].transpose(), deltas[deltaIndex]) * sigGradient(z[x])
+			deltas.append(delta)
+		print deltas
+		# print costMeanSquared(y, a3)
+		# delta3 = (a3 - y)  * sigGradient(z3)
+		# layerWeights = self.getWeights()
+		# w1 = layerWeights[0]
+		# w2 = layerWeights[1]
+		# w1NoBias = rmBias(w1)
+		# delta2 = np.dot(w1NoBias, delta3) * sigGradient(z2)
+		# Grad1 = delta2 * a1.transpose()
+		# Grad2 = delta3 * a2.transpose()
+		# w1 += -alpha * Grad1
+		# w2 += -alpha * Grad2
+		# # Updating weights here
+		# for i, weights in enumerate(w1):
+		# 	self.hidden[i].assignW(weights)
+		# for i, weights in enumerate(w2):
+		# 	self.outs[i].assignW(weights)
 
 
 
