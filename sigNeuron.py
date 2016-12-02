@@ -13,7 +13,6 @@ class Neuron:
         np.random.seed(seed+30)
         # Initialize weights randomly with mean 0
         self.weights = 2*np.random.random((int(inputSize)))-1
-        print self.weights
 
     def assignW(self, weights):
         self.weights = weights

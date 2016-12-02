@@ -8,8 +8,9 @@ import numpy as np
 """Neural net class for systems with ONE hidden layer, 
 				eventually will work generically for more. """
 class Net():
-	def __init__(self, sizeIn, layerList):
+	def __init__(self, sizeIn, layerList, gridSize):
 		self.sizeIn = sizeIn
+		self.gridSize = gridSize
 		self.numLayers = len(layerList)
 		self.layerList = layerList
 		self.layers = [[] for x in range(self.numLayers)]
@@ -30,41 +31,44 @@ class Net():
 				layerWeights[i][x] = node.getW()
 		return layerWeights
 
-# -------------------------------------------------------------------------------------------------------------------
 
 	def writeWeights(self):
 		layerWeights = self.getWeights()
-		layerWeights[0].tofile('weights1')
-		layerWeights[1].tofile('weights2')
+		for i, layer in enumerate(layerWeights):
+			layer.tofile('weight{0}'.format(i)) # one file later
 
 
 	def loadWeights(self):
-		weights1 = np.fromfile('weights1').reshape(self.sizeH, self.sizeX+1)
-		weights2 = np.fromfile('weights2').reshape(self.sizeO, self.sizeH+1)
-		for i, weight in enumerate(weights1):
-			self.hidden[i].assignW(weight)
-		for i, weight in enumerate(weights2):
-			self.outs[i].assignW(weight)
+		loadedWeights = []
+		for i in range(self.numLayers):
+			loadedWeights.append(np.fromfile('weight{0}'.format(i)))
+		for i, layer in enumerate(self.layers):
+			for x, node in enumerate(layer):
+				node.assignW(loadedWeights[i][x])
 
-	def updateWeights(self, layerWeights):
-		layerWeights[0].tofile('weights1')
-		layerWeights[1].tofile('weights2')
+
+	def updateWeights(self, newLayerWeights):
+		for i, layer in enumerate(newLayerWeights):
+			layer.tofile('weight{0}'.format(i))
+		self.loadedWeights()
 
 
 	def getMove(self):
 		a = []
 		z = []
 		a1 = getData()
-		justMoves = a1 
+		justMoves = a1
 		a.append(addBias(a1))
-		z.append(computeZ(self.layers[0], a[0]))
-		a.append(addBias(sigmoid(z[0])))
-		z.append(computeZ(self.layers[1], a[1]))
-		a.append(sigmoid(z[1]))
-		moves = findMoves(a[2])
+		for i in range(self.numLayers):
+			z.append(computeZ(self.layers[i], a[i]))
+			temp = sigmoid(z[i])
+			a.append(addBias(temp))
+		moves = findMoves(a[self.numLayers])
 		legalMoves = onlyLegal(moves, justMoves)
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		return [int(x) for x in nextMoves[0]]
+		
+# -------------------------------------------------------------------------------------------------------------------
 
 
 	def train(self, alpha, y):
