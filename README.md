@@ -10,7 +10,7 @@ Strategy:
   3) Play real people 
       - Learn from lost games
       - Surpass minmax algorithm by differentiate between
-        # of winning futures vs probabilty of a winning future occuring 
+        "#" of winning futures vs probabilty of a winning future occuring 
       - Introduce randomness 
   4) Scale to 3 x 3
       - Repeat
