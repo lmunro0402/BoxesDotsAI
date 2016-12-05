@@ -42,15 +42,18 @@ class Net():
 		loadedWeights = []
 		for i in range(self.numLayers):
 			loadedWeights.append(np.fromfile('weight{0}'.format(i)))
+		print "-------------------------------------------"
+		print loadedWeights
 		for i, layer in enumerate(self.layers):
 			for x, node in enumerate(layer):
+				print x
 				node.assignW(loadedWeights[i][x])
 
 
 	def updateWeights(self, newLayerWeights):
 		for i, layer in enumerate(newLayerWeights):
 			layer.tofile('weight{0}'.format(i))
-		self.loadedWeights()
+		self.loadWeights()
 
 
 	def getMove(self):
@@ -84,35 +87,59 @@ class Net():
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
+		print "-------------------------------------"
+		for i in z:
+			print i
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-
+		print "-------------------------------------"
+		for i in a:
+			print i
+		print "-------------------------------------"
+		# GET WEIGHTS WITHOUT BIAS 
 		noBiasWeights = self.getWeights()
-		# REMOVE BIAS WEIGHTS
+		for i in noBiasWeights:
+			print i
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
 		deltas = []
+		# EDIT THIS IF CHANING COST FUNCTION
 		initialDelta = (out - y) * sigGradient(z[len(z)-1])
 		deltas.append(initialDelta)
-		print deltas
+		print "------------------------------------"
 		# REALLY CHECK THIS 
 		for x in range(self.numLayers-2, -1, -1):
 			print x
 			deltaIndex = (self.numLayers-2) - x
+			print deltaIndex
 			delta = np.dot(noBiasWeights[x+1].transpose(), deltas[deltaIndex]) * sigGradient(z[x])
 			deltas.append(delta)
-		print deltas
-		# print costMeanSquared(y, a3)
-		# delta3 = (a3 - y)  * sigGradient(z3)
-		# layerWeights = self.getWeights()
-		# w1 = layerWeights[0]
-		# w2 = layerWeights[1]
-		# w1NoBias = rmBias(w1)
-		# delta2 = np.dot(w1NoBias, delta3) * sigGradient(z2)
-		# Grad1 = delta2 * a1.transpose()
-		# Grad2 = delta3 * a2.transpose()
-		# w1 += -alpha * Grad1
-		# w2 += -alpha * Grad2
+		print "----------------------------"
+		for i in deltas:
+			print i
+		print "----------------------------"
+		Grads = []
+		# REORDER DELTAS FROM FIRST LAYER TO LAST			
+		for i, delta in enumerate(deltas[::-1]):
+			print delta
+			print a[i]
+			Grads.append(delta*a[i].transpose())
+		print "----------------------------"
+		for i in Grads:
+			print i
+		print "-------------------------------"
+		step = alpha * np.asarray(Grads)
+		print alpha * np.asarray(Grads)
+		print ""
+		print self.getWeights()
+		print "---------------------------------"
+		updatedWeights = self.getWeights() + alpha*np.asarray(Grads)
+		print updatedWeights
+		print "------------------------------------"
+		print self.getWeights()
+		self.updateWeights(updatedWeights)
+		print "-------------------------------------"
+		print self.getWeights()
 		# # Updating weights here
 		# for i, weights in enumerate(w1):
 		# 	self.hidden[i].assignW(weights)
