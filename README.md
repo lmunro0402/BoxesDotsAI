@@ -1,5 +1,5 @@
-## Deep-Learing
-#Framework for a deep learning network to play Boxes &amp; Dots. Framework created to be easily adaptable for any use though.
+# Deep-Learing Neural Network 
+##Framework for a deep learning network to play Boxes &amp; Dots. Framework created to be easily adaptable for any use though.
 Objective: Create an AI capable of beating minmax algorithms and most people in a 3 x 3 Boxes and Dots game.
 
 Strategy: 
