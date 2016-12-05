@@ -2,13 +2,15 @@
 #
 # Author: Luke Munro
 from sigNeuron import *
+from BoxesDots import *
 import numpy as np
 
 
-"""Neural net class for systems with ONE hidden layer, 
-				eventually will work generically for more. """
-class Net():
+"""Neural net class for systems with any # of hidden layers."""
+
+class Net(Player):
 	def __init__(self, sizeIn, layerList, gridSize):
+		Player.__init__(self, "AI")
 		self.sizeIn = sizeIn
 		self.gridSize = gridSize
 		self.numLayers = len(layerList)
@@ -35,24 +37,21 @@ class Net():
 	def writeWeights(self):
 		layerWeights = self.getWeights()
 		for i, layer in enumerate(layerWeights):
-			layer.tofile('weight{0}'.format(i)) # one file later
+			np.savetxt('weight{0}.txt'.format(i), layer) # one file later
 
 
-	def loadWeights(self):
+	def loadWeights(self): # BREAKS IF YOU ONLY HAVE 1 NODE IN A LAYER
 		loadedWeights = []
 		for i in range(self.numLayers):
-			loadedWeights.append(np.fromfile('weight{0}'.format(i)))
-		print "-------------------------------------------"
-		print loadedWeights
+			loadedWeights.append(np.loadtxt('weight{0}.txt'.format(i)))
 		for i, layer in enumerate(self.layers):
 			for x, node in enumerate(layer):
-				print x
 				node.assignW(loadedWeights[i][x])
 
 
 	def updateWeights(self, newLayerWeights):
 		for i, layer in enumerate(newLayerWeights):
-			layer.tofile('weight{0}'.format(i))
+			np.savetxt('weight{0}.txt'.format(i), layer)
 		self.loadWeights()
 
 
@@ -68,8 +67,11 @@ class Net():
 			a.append(addBias(temp))
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		moves = findMoves(a[self.numLayers])
+		print out
+		moves = findMoves(out)
+		print moves
 		legalMoves = onlyLegal(moves, justMoves)
+		print legalMoves
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		return [int(x) for x in nextMoves[0]]
 
@@ -87,64 +89,60 @@ class Net():
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
-		print "-------------------------------------"
-		for i in z:
-			print i
+		# print "-------------------------------------"
+		# for i in z:
+		# 	print i
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print "-------------------------------------"
-		for i in a:
-			print i
-		print "-------------------------------------"
+		print out
+		print 1./2 * sum(out - y)**2
+		# print "-------------------------------------"
+		# for i in a:
+		# 	print i
+		# print "-------------------------------------"
 		# GET WEIGHTS WITHOUT BIAS 
 		noBiasWeights = self.getWeights()
-		for i in noBiasWeights:
-			print i
+		# for i in noBiasWeights:
+		# 	print i
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
 		deltas = []
 		# EDIT THIS IF CHANING COST FUNCTION
 		initialDelta = (out - y) * sigGradient(z[len(z)-1])
 		deltas.append(initialDelta)
-		print "------------------------------------"
+		# print "------------------------------------"
 		# REALLY CHECK THIS 
 		for x in range(self.numLayers-2, -1, -1):
-			print x
+			# print x
 			deltaIndex = (self.numLayers-2) - x
-			print deltaIndex
+			# print deltaIndex
 			delta = np.dot(noBiasWeights[x+1].transpose(), deltas[deltaIndex]) * sigGradient(z[x])
 			deltas.append(delta)
-		print "----------------------------"
-		for i in deltas:
-			print i
-		print "----------------------------"
+		# print "----------------------------"
+		# for i in deltas:
+			# print i
+		# print "----------------------------"
 		Grads = []
 		# REORDER DELTAS FROM FIRST LAYER TO LAST			
 		for i, delta in enumerate(deltas[::-1]):
-			print delta
-			print a[i]
+			# print delta
+			# print a[i]
 			Grads.append(delta*a[i].transpose())
-		print "----------------------------"
-		for i in Grads:
-			print i
-		print "-------------------------------"
-		step = alpha * np.asarray(Grads)
-		print alpha * np.asarray(Grads)
-		print ""
-		print self.getWeights()
-		print "---------------------------------"
-		updatedWeights = self.getWeights() + alpha*np.asarray(Grads)
-		print updatedWeights
-		print "------------------------------------"
-		print self.getWeights()
+		# print "----------------------------"
+		# for i in Grads:
+		# 	print i
+		# print "-------------------------------"
+		# print alpha * np.asarray(Grads)
+		# print ""
+		# print self.getWeights()
+		# print "---------------------------------"
+		updatedWeights = self.getWeights() + -alpha*np.asarray(Grads)
+		# print updatedWeights
+		# print "------------------------------------"
+		# print self.getWeights()
 		self.updateWeights(updatedWeights)
-		print "-------------------------------------"
-		print self.getWeights()
-		# # Updating weights here
-		# for i, weights in enumerate(w1):
-		# 	self.hidden[i].assignW(weights)
-		# for i, weights in enumerate(w2):
-		# 	self.outs[i].assignW(weights)
+		# print "-------------------------------------"
+		# print self.getWeights()
 
 
 
