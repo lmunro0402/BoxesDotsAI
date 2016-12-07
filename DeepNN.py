@@ -4,7 +4,7 @@
 from sigNeuron import *
 from BoxesDots import *
 import numpy as np
-
+import random
 
 """Neural net class for systems with any # of hidden layers."""
 
@@ -17,10 +17,10 @@ class Net(Player):
 		self.layerList = layerList
 		self.layers = [[] for x in range(self.numLayers)]
 		for i in range(layerList[0]):
-			self.layers[0].append(Neuron(self.sizeIn+1, i))
+			self.layers[0].append(Neuron(self.sizeIn+1, int(random.random()*100)))
 		for i, nodes in enumerate(layerList[1:]):
 			for x in range(nodes):
-				self.layers[i+1].append(Neuron(len(self.layers[i])+1, x))
+				self.layers[i+1].append(Neuron(len(self.layers[i])+1, int(random.random()*100)))
 
 
 	def getWeights(self): 
@@ -55,11 +55,11 @@ class Net(Player):
 		self.loadWeights()
 
 
-	def getMove(self):
+	def getMove(self, data):
 		a = []
 		z = []
-		a1 = getData()
-		justMoves = a1
+		a1 = cleanData(data)
+		game_state = a1
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
@@ -67,23 +67,23 @@ class Net(Player):
 			a.append(addBias(temp))
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print out
+		# print out
 		moves = findMoves(out)
-		print moves
-		legalMoves = onlyLegal(moves, justMoves)
-		print legalMoves
+		# print moves
+		legalMoves = onlyLegal(moves, game_state)
+		# print legalMoves
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		return [int(x) for x in nextMoves[0]]
 
 # -------------------------------------------------------------------------------------------------------------------
 
 
-	def train(self, alpha, y):
+	def train(self, data, alpha, y):
 # ----- Leave steps split for easier comprehension ------
 		a = []
 		z = []
-		a1 = getData()
-		justMoves = a1 
+	#	a1 = cleanData(data)
+		a1 = data
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
@@ -185,12 +185,10 @@ def estimateGradlog(y, a, weights, epsilon): # DO THIS LATER
 
 # ---------------------------- Utility ----------------------------------
 
-def getData():
-	with open('data', 'r') as d:
-		data = d.read()
-	data = [[int(data[x])] for x in range(len(data)) if x%3==1]
+def cleanData(raw):
+	data = [[int(i)] for x in raw for i in x]
 	data = np.array(data)
-	return data 
+	return data
 		
 def addBias(aLayer): # Adds 1 to vertical vector matrix
 	return np.insert(aLayer, 0, 1, axis=0)
@@ -239,16 +237,3 @@ def onlyLegal(moves, justMoves): # CONDENSE
 			legalMoves.append(i)
 	moveOrder = filter(lambda x: x in legalMoves, moves)
 	return moveOrder
-
-
-
-# --------------- for testing ----------------------------------
-def main():
-	AI = Net(3, [2, 3])
-
-
-
-
-if __name__ == '__main__':
-	main()
-

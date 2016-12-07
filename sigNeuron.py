@@ -7,8 +7,7 @@ import time
 
 
 class Neuron:
-    """Neuron for logistic regression. Given layer, index in layer, and size of data 
-    it outputs a single value."""
+    """Neuron for logistic regression. Outputs a single value."""
     def __init__(self, inputSize, seed):
         np.random.seed(seed)
         # Initialize weights randomly with mean 0

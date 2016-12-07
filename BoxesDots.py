@@ -19,6 +19,7 @@ class Grid:
 			self.moves.append([0]*dim)
 			self.moves.append([0]*(dim+1))
 		self.moves.append([0]*dim)
+		self.old_state = []
 
 	def reset(self):
 		self = Grid(self.dim)
@@ -29,11 +30,12 @@ class Grid:
 	def add_players(self, players):
 		self.players = players
 
-	def turn(self, player):
-		move = player.getMove()
+	def turn(self, player, game_state):
+		self.old_state = [int(i) for x in self.moves for i in x]
+		move = player.getMove(game_state)
 		while not self.valid_move(move):
 			print 'Invalid Move'
-			move = player.getMove()
+			move = player.getMove(game_state)
 		move = [int(x) for x in move]
 		player.last_move = move
 		self.move(move[0], move[1])
@@ -64,13 +66,11 @@ class Grid:
 	def game_status(self):
 		return (self.dim**2) != self.usedBoxes
 
-	def update_scores(self, player): # THIS IS BUGGED sometimes need +2
+	def update_scores(self, player): # THIS IS BUGGED sometimes need +2 : FIXED
 		count = sum(self.check_boxes())
 	#	print count
 		if count != self.usedBoxes:
 			diff = abs(self.usedBoxes-count)
-			# self.display_game()
-			# time.sleep(1)
 			if diff == 1:
 				player.plusOne()
 			else:
@@ -158,7 +158,7 @@ class Player:
 	def getName(self):
 		return self.name
 
-	def getMove(self):
+	def getMove(self, game_state):
 		move = raw_input("Input 2 numbers: Row then Column (ex. first vertical line would be 10): ")
 		return move
 
@@ -169,32 +169,29 @@ class Player:
  		return self.score
 
  # -------------------------------- Training ---------------------------------------------
-def training_data(cPlayer):
-	train = [[0, 0], [0, 0, 0], [0, 0], [0, 0, 0], [0, 0]]
-	train[cPlayer.last_move[0]][cPlayer.last_move[1]] = 1
-	train_data = [int(i) for x in train for i in x]
-	train_data = np.asarray(train_data).reshape(12, 1)
-	return train_data
+def training_data(old_state, current_state):
+	size = len(old_state)
+	current_state = [int(i) for x in current_state for i in x]
+	current_state = np.asarray(current_state).reshape(size, 1)
+	old_state = np.asarray(old_state).reshape(size, 1) 
+	move = current_state - old_state
+	print move
+	return move
 
 def main():
-	# dim = int(input("Size of grid: "))
-	dim = 2
+	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
-	# aI2 = NN.Net(20, dim)
-	AI = NN.Net(12, [30, 20, 12], dim)
-	player1 = AI
+	numMoves = 2*(dim**2+dim)
+	player1 = AI = NN.Net(numMoves, [30, 20, numMoves], dim) 
 	name = raw_input("Enter name: ")
 	player2 = Player(name)
 	val = input("1 for load weights 0 for no: ")
 	if  val == 1:
 		AI.loadWeights()
-		print "------ aI -------\n"
-		print AI.getWeights()[0]
+
 	for i in range(train):
 		g = Grid(dim)
 		g.add_players([player1, player2])
-		with open('data', 'w') as data:
-			data.write(g.get_data())	
 		print g.players[0].getName() + " starts\n"
 		turns = 0
 		g.display_game()
@@ -202,27 +199,20 @@ def main():
 			cPlayer = g.players[turns%2]
 			check = cPlayer.getScore()
 			print cPlayer.getName() + " your move"
-			g.turn(cPlayer)
-			print cPlayer.last_move
+			g.turn(cPlayer, g.moves)
 			if cPlayer.getName() != "AI":
-				train_data = training_data(cPlayer)
-				AI.train(0.1, train_data)
+				train_data = training_data(g.old_state, g.moves)
+				AI.train(g.old_state, 0.1, train_data)
 				# CREATE ALPHA OPTIMIZATION FUNCION COST BOUNCES
 			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
 			g.display_game()
 			print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
 			print "---- Next Move ----"
-			# if check == cPlayer.getScore():
-			#  	turns += 1
-			with open('data', 'w') as data:
-				data.write(g.get_data())
+			if check == cPlayer.getScore():
+			 	turns += 1
 		g.show_results()
 		g.reset()
 	AI.writeWeights()
-
-	# print "------ aI -------\n"
-	# print AI.getWeights()[0]
-
 
 if __name__ == "__main__":
 	main()
