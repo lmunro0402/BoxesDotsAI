@@ -5,6 +5,7 @@
 import DeepNN as NN
 import time
 import numpy as np
+import trainer
 # -----------------------------------ADD MOVE DIAGRAM -----------------------
 
 class Grid:
@@ -14,11 +15,11 @@ class Grid:
 		assert self.dim < 5, "Less than 5 please" # CHANGE COMMAND INPUT FOR BIGGER GAMES
 		self.usedBoxes = 0
 		self.players = []
-		self.moves = []
+		self.game_state = []
 		for i in range(self.dim):
-			self.moves.append([0]*dim)
-			self.moves.append([0]*(dim+1))
-		self.moves.append([0]*dim)
+			self.game_state.append([0]*dim)
+			self.game_state.append([0]*(dim+1))
+		self.game_state.append([0]*dim)
 		self.old_state = []
 
 	def reset(self):
@@ -31,7 +32,7 @@ class Grid:
 		self.players = players
 
 	def turn(self, player, game_state):
-		self.old_state = [int(i) for x in self.moves for i in x]
+		self.old_state = [int(i) for x in self.game_state for i in x]
 		move = player.getMove(game_state)
 		while not self.valid_move(move):
 			print 'Invalid Move'
@@ -42,7 +43,7 @@ class Grid:
 		self.update_scores(player)
 
 	def move(self, row, index):
-		self.moves[row][index] = 1
+		self.game_state[row][index] = 1
 
 #------------------------------ Checks ----------------------------------
 
@@ -55,7 +56,7 @@ class Grid:
 			if (row%2 == 0 and index > self.dim-1) or\
 		 	(row%2 == 1 and index > self.dim) or (row > self.dim*2): 
 				return False
-			elif self.moves[row][index] == 1:
+			elif self.game_state[row][index] == 1:
 				return False
 			return True
 		except:
@@ -86,8 +87,8 @@ class Grid:
 			# Go by rows
 			for j in range(self.dim):
 			# Each box
-				boxes.append([self.moves[i][j], self.moves[i+1][j], \
-				self.moves[i+1][j+1], self.moves[i+2][j]])
+				boxes.append([self.game_state[i][j], self.game_state[i+1][j], \
+				self.game_state[i+1][j+1], self.game_state[i+2][j]])
 		return boxes
 
 	def check_boxes(self):
@@ -98,7 +99,7 @@ class Grid:
 # ------------------------- Display methods --------------------------------
 
 	def display_moves(self):
-		return self.moves
+		return self.game_state
 
 	def display_game(self):
 		buffer = [] #buffer? what is this
@@ -108,7 +109,7 @@ class Grid:
 		vEmpty = "    "
 		# Top row
 		for i in range(self.dim):
-			if self.moves[0][i] == 1:
+			if self.game_state[0][i] == 1:
 				buffer.append(hLine)
 			else: buffer.append(hEmpty)
 		buffer.append("+\n")
@@ -116,13 +117,13 @@ class Grid:
 		for i in range(1, self.dim*2, 2):
 			# Make horizontal passes
 			for j in range(self.dim+1):
-				if self.moves[i][j] ==  1:
+				if self.game_state[i][j] ==  1:
 					buffer.append(vLine)
 				else: buffer.append(vEmpty)
 			buffer.append("\n")
 			# Vertical passes
 			for j in range(self.dim):
-				if self.moves[i+1][j] == 1:
+				if self.game_state[i+1][j] == 1:
 					buffer.append(hLine)
 				else: buffer.append(hEmpty)
 			buffer.append("+\n")
@@ -142,11 +143,11 @@ class Grid:
 # -------------------------- Data methods for AI ---------------------------
 	
 	def get_data(self):
-		moves = [i for x in self.moves for i in x]
+		moves = [i for x in self.game_state for i in x]
 		# scores = [players[0].getScore(), players[1].getScore()]
 		return str(moves) # + scores)
 	def train_data(self):
-		return [i for x in self.moves for i in x]
+		return [i for x in self.game_state for i in x]
 
 # -------------------------- Player Class ----------------------------------
 class Player:
@@ -189,6 +190,8 @@ def main():
 	if  val == 1:
 		AI.loadWeights()
 
+	ProfOak = trainer.Trainer(numMoves, dim)
+
 	for i in range(train):
 		g = Grid(dim)
 		g.add_players([player1, player2])
@@ -199,9 +202,10 @@ def main():
 			cPlayer = g.players[turns%2]
 			check = cPlayer.getScore()
 			print cPlayer.getName() + " your move"
-			g.turn(cPlayer, g.moves)
+			g.turn(cPlayer, g.game_state)
 			if cPlayer.getName() != "AI":
-				train_data = training_data(g.old_state, g.moves)
+				ProfOak.record(g.old_state, g.game_state)
+				train_data = training_data(g.old_state, g.game_state)
 				AI.train(g.old_state, 0.1, train_data)
 				# CREATE ALPHA OPTIMIZATION FUNCION COST BOUNCES
 			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
