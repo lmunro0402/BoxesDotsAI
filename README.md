@@ -22,7 +22,8 @@ Current Progress:
 - Attempt to train AI through mutation                                      11/27
 - Backpropagation working                                                   11/28
 - Framework for Deep Learning AI                                            12/5
-#- Training data storage, interalized data transfer                          12/6
+- Training data storage, interalized data transfer                          12/6
+#- Trainer created, training for data working, started collecting            12/8
 
 
 
@@ -32,3 +33,5 @@ Current Progress:
 	Conclusion: This is already a thing - Momentum and Nesterov accelerated gradient, 		disappointing this was exactly what I was thinking :'(.
 	See: http://sebastianruder.com/optimizing-gradient-descent/index.html#gradientdescentoptimizationalgorithms
 	Will attempt a modified version to improve one scenario 
+
+- Reinforced Learning. Will start Udacity class during winter break. 
