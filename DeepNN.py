@@ -37,13 +37,13 @@ class Net(Player):
 	def writeWeights(self):
 		layerWeights = self.getWeights()
 		for i, layer in enumerate(layerWeights):
-			np.savetxt('weight{0}.txt'.format(i), layer) # one file later
+			np.savetxt('{0}weight{1}.txt'.format(self.gridSize, i), layer) # one file later
 
 
 	def loadWeights(self): # BREAKS IF YOU ONLY HAVE 1 NODE IN A LAYER
 		loadedWeights = []
 		for i in range(self.numLayers):
-			loadedWeights.append(np.loadtxt('weight{0}.txt'.format(i)))
+			loadedWeights.append(np.loadtxt('{0}weight{1}.txt'.format(self.gridSize, i)))
 		for i, layer in enumerate(self.layers):
 			for x, node in enumerate(layer):
 				node.assignW(loadedWeights[i][x])
@@ -51,8 +51,17 @@ class Net(Player):
 
 	def updateWeights(self, newLayerWeights):
 		for i, layer in enumerate(newLayerWeights):
-			np.savetxt('weight{0}.txt'.format(i), layer)
+			np.savetxt('{0}weight{1}.txt'.format(self.gridSize, i), layer)
 		self.loadWeights()
+
+	def internalUpdateWeights(self, newLayerWeights): # IMPROVE UPDATEWEIGHTS
+		return None
+
+	def reg(self, Lambda): # CURRENTLY UNUSED 
+		reg = 0
+		for w in self.getWeights():
+			reg += Lambda * abs(sum(sum(rmBias(w))))
+		return reg
 
 
 	def getMove(self, data):
@@ -78,71 +87,36 @@ class Net(Player):
 # -------------------------------------------------------------------------------------------------------------------
 
 
-	def train(self, data, alpha, y):
+	def train(self, alpha, old_state, y): # REGULARIZATION POSSIBLY 
 # ----- Leave steps split for easier comprehension ------
 		a = []
 		z = []
-	#	a1 = cleanData(data)
-		a1 = data
+		a1 = old_state # Already cleaned
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
-		# print "-------------------------------------"
-		# for i in z:
-		# 	print i
-		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print out
-		print 1./2 * sum(out - y)**2
-		# print "-------------------------------------"
-		# for i in a:
-		# 	print i
-		# print "-------------------------------------"
-		# GET WEIGHTS WITHOUT BIAS 
+		print np.hstack((y, out, out-y))
+		print costMeanSquared(y, out) 
 		noBiasWeights = self.getWeights()
-		# for i in noBiasWeights:
-		# 	print i
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
 		deltas = []
 		# EDIT THIS IF CHANING COST FUNCTION
 		initialDelta = (out - y) * sigGradient(z[len(z)-1])
 		deltas.append(initialDelta)
-		# print "------------------------------------"
-		# REALLY CHECK THIS 
 		for x in range(self.numLayers-2, -1, -1):
-			# print x
 			deltaIndex = (self.numLayers-2) - x
-			# print deltaIndex
 			delta = np.dot(noBiasWeights[x+1].transpose(), deltas[deltaIndex]) * sigGradient(z[x])
 			deltas.append(delta)
-		# print "----------------------------"
-		# for i in deltas:
-			# print i
-		# print "----------------------------"
 		Grads = []
 		# REORDER DELTAS FROM FIRST LAYER TO LAST			
 		for i, delta in enumerate(deltas[::-1]):
-			# print delta
-			# print a[i]
 			Grads.append(delta*a[i].transpose())
-		# print "----------------------------"
-		# for i in Grads:
-		# 	print i
-		# print "-------------------------------"
-		# print alpha * np.asarray(Grads)
-		# print ""
-		# print self.getWeights()
-		# print "---------------------------------"
-		updatedWeights = self.getWeights() + -alpha*np.asarray(Grads)
-		# print updatedWeights
-		# print "------------------------------------"
-		# print self.getWeights()
+		updatedWeights = self.getWeights() + -alpha*np.asarray(Grads) # here later
 		self.updateWeights(updatedWeights)
-		# print "-------------------------------------"
-		# print self.getWeights()
 
 
 
@@ -168,12 +142,6 @@ def costMeanSquared(y, a):
 
 def sigGradient(z):
 	return sigmoid(z) * (1 - sigmoid(z))
-
-def reg(weights, Lambda): # Bias must be removed from weights
-	w1= rmBias(weights[0])
-	w2 = rmBias(weights[1])
-	reg = Lambda/2.0 * (sum(sum(w1**2)) + sum(sum(w2**2)))
-	return reg
 
 def estimateGradlog(y, a, weights, epsilon): # DO THIS LATER
 	for i in range(weights):

@@ -3,18 +3,61 @@
 # Author: Luke Munro
 
 import DeepNN as NN
-import time
+import time, random
 import numpy as np
-import trainer
+import Trainer
 # -----------------------------------ADD MOVE DIAGRAM -----------------------
 
+
+def main():
+	dim = 2 #int(input("Size of grid: "))
+	train = int(input("How many games: "))
+	numMoves = 2*(dim**2+dim)
+	player1 = AI = NN.Net(numMoves, [30, 20, numMoves], dim) 
+	name = raw_input("Enter name: ")
+	player2 = Player(name)
+	val = input("1 for load weights 0 for no: ")
+	if  val == 1:
+		AI.loadWeights()
+
+	ProfOak = Trainer.Trainer(AI, numMoves, dim)
+
+	g = Grid(dim, [player1, player2])
+
+	for i in range(train):
+		turns = random.randint(0,1)
+		print g.players[turns].getName() + " starts\n"
+		g.display_game()
+		while g.game_status():
+			cPlayer = g.players[turns%2]
+			check = cPlayer.getScore()
+			print cPlayer.getName() + " your move"
+			g.turn(cPlayer, g.game_state)
+			if cPlayer.getName() != "AI":
+				ProfOak.record(g.old_state, g.game_state)
+				ProfOak.play_train_aI(0.1, g.old_state, g.game_state)
+			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
+			g.display_game()
+			print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
+			print "---- Next Move ----"
+			if check == cPlayer.getScore():
+			 	turns += 1
+		g.show_results()
+		if AI.getScore() <= player2.getScore():
+			ProfOak.write_record()
+		g.reset()
+	AI.writeWeights()
+
+
+
+
 class Grid:
-	def __init__(self, dim):
+	def __init__(self, dim, players):
 		""" Only square games allowed"""
 		self.dim = dim 
 		assert self.dim < 5, "Less than 5 please" # CHANGE COMMAND INPUT FOR BIGGER GAMES
 		self.usedBoxes = 0
-		self.players = []
+		self.players = players
 		self.game_state = []
 		for i in range(self.dim):
 			self.game_state.append([0]*dim)
@@ -23,7 +66,13 @@ class Grid:
 		self.old_state = []
 
 	def reset(self):
-		self = Grid(self.dim)
+		self.players[0].reset()
+		self.players[1].reset()
+		self. usedBoxes = 0
+		for i, row in enumerate(self.game_state):
+			for x in range(len(row)):
+				self.game_state[i][x] = 0
+
 
 	def getDim(self):
 		return self.dim
@@ -169,54 +218,8 @@ class Player:
 	def getScore(self):
  		return self.score
 
- # -------------------------------- Training ---------------------------------------------
-def training_data(old_state, current_state):
-	size = len(old_state)
-	current_state = [int(i) for x in current_state for i in x]
-	current_state = np.asarray(current_state).reshape(size, 1)
-	old_state = np.asarray(old_state).reshape(size, 1) 
-	move = current_state - old_state
-	print move
-	return move
-
-def main():
-	dim = int(input("Size of grid: "))
-	train = int(input("How many games: "))
-	numMoves = 2*(dim**2+dim)
-	player1 = AI = NN.Net(numMoves, [30, 20, numMoves], dim) 
-	name = raw_input("Enter name: ")
-	player2 = Player(name)
-	val = input("1 for load weights 0 for no: ")
-	if  val == 1:
-		AI.loadWeights()
-
-	ProfOak = trainer.Trainer(numMoves, dim)
-
-	for i in range(train):
-		g = Grid(dim)
-		g.add_players([player1, player2])
-		print g.players[0].getName() + " starts\n"
-		turns = 0
-		g.display_game()
-		while g.game_status():
-			cPlayer = g.players[turns%2]
-			check = cPlayer.getScore()
-			print cPlayer.getName() + " your move"
-			g.turn(cPlayer, g.game_state)
-			if cPlayer.getName() != "AI":
-				ProfOak.record(g.old_state, g.game_state)
-				train_data = training_data(g.old_state, g.game_state)
-				AI.train(g.old_state, 0.1, train_data)
-				# CREATE ALPHA OPTIMIZATION FUNCION COST BOUNCES
-			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
-			g.display_game()
-			print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
-			print "---- Next Move ----"
-			if check == cPlayer.getScore():
-			 	turns += 1
-		g.show_results()
-		g.reset()
-	AI.writeWeights()
+ 	def reset(self):
+ 		self.score = 0
 
 if __name__ == "__main__":
 	main()
