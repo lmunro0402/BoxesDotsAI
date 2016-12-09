@@ -82,7 +82,7 @@ class Net(Player):
 		legalMoves = onlyLegal(moves, game_state)
 		# print legalMoves
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
-		return [int(x) for x in nextMoves[0]]
+		return nextMoves[0]
 
 # -------------------------------------------------------------------------------------------------------------------
 
@@ -185,10 +185,10 @@ def makeCommands(gridDim):
 	for i in range(gridDim*2+1):
 		if i%2==0:
 			for x in range(gridDim):
-				moveCommands.append(str(i)+str(x))
+				moveCommands.append(str(i)+" "+str(x))
 		else:
 			for x in range(gridDim+1):
-				moveCommands.append(str(i)+str(x))
+				moveCommands.append(str(i)+" "+str(x))
 	return moveCommands
 
 def formatMoves(moveOrder, commands): # CONDENSE

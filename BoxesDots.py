@@ -10,7 +10,7 @@ import Trainer
 
 
 def main():
-	dim = 2 #int(input("Size of grid: "))
+	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
 	numMoves = 2*(dim**2+dim)
 	player1 = AI = NN.Net(numMoves, [30, 20, numMoves], dim) 
@@ -20,12 +20,12 @@ def main():
 	if  val == 1:
 		AI.loadWeights()
 
-	ProfOak = Trainer.Trainer(AI, numMoves, dim)
+	ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
 
 	g = Grid(dim, [player1, player2])
 
 	for i in range(train):
-		turns = random.randint(0,1)
+		turns = random.randint(0,1) * 0
 		print g.players[turns].getName() + " starts\n"
 		g.display_game()
 		while g.game_status():
@@ -35,7 +35,7 @@ def main():
 			g.turn(cPlayer, g.game_state)
 			if cPlayer.getName() != "AI":
 				ProfOak.record(g.old_state, g.game_state)
-				ProfOak.play_train_aI(0.1, g.old_state, g.game_state)
+				ProfOak.train_by_play(0.1, g.old_state, g.game_state)
 			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
 			g.display_game()
 			print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
@@ -55,7 +55,7 @@ class Grid:
 	def __init__(self, dim, players):
 		""" Only square games allowed"""
 		self.dim = dim 
-		assert self.dim < 5, "Less than 5 please" # CHANGE COMMAND INPUT FOR BIGGER GAMES
+		assert self.dim < 10, "Less than 10 please" # CHANGE COMMAND INPUT FOR BIGGER GAMES
 		self.usedBoxes = 0
 		self.players = players
 		self.game_state = []
@@ -82,10 +82,10 @@ class Grid:
 
 	def turn(self, player, game_state):
 		self.old_state = [int(i) for x in self.game_state for i in x]
-		move = player.getMove(game_state)
+		move = player.getMove(game_state).split(" ")
 		while not self.valid_move(move):
 			print 'Invalid Move'
-			move = player.getMove(game_state)
+			move = player.getMove(game_state).split(" ")
 		move = [int(x) for x in move]
 		player.last_move = move
 		self.move(move[0], move[1])

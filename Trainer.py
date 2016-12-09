@@ -6,11 +6,12 @@ import numpy as np
 import DeepNN as NN
 
 class Trainer:
-	def __init__(self, AI, sizeIn, gridSize):
+	def __init__(self, AI, sizeIn, gridSize, playerName="Training"):
 		self.gridSize = gridSize
 		self.sizeIn = sizeIn
 		self.roboPikachu = AI
-		self.pokedex = []
+		self.playerName = playerName
+		self.pokedex = [playerName]
 
 
 	def format_game_state(self, state):
@@ -24,12 +25,14 @@ class Trainer:
 
 	def write_record(self):
 		with open("move_record{0}.txt".format(self.gridSize), "a") as record:
-			for pair in self.pokedex:
+			record.write("#------- Player = " + self.pokedex[0] + "------------- \n")
+			for pair in self.pokedex[1:]: 
 				record.write(str(pair[0])+"\n")
 				record.write(str(pair[1])+"\n")
 				record.write("#---------- Next Move ------------\n")
+			record.write("#\n")
 		# CLEARING RECORD
-		self.pokedex = []
+		self.pokedex = [self.playerName]
 
 
 	def get_training_move(self, old_state, new_state):
@@ -59,7 +62,7 @@ class Trainer:
 		self.roboPikachu.train(alpha, old_state, y)
 
 
-	def play_train_aI(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING
+	def train_by_play(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING
 		new_state = self.format_game_state(game_state)
 		self.train_aI(alpha, old_state, new_state)
 
@@ -79,7 +82,9 @@ def main():
 	AI.loadWeights()
 	print AI.getWeights()[0][0]
 	print AI.getWeights()[1][0]
-	ProfOak.train_from_record(0.1)
+	alpha = input("Training Rate = ")
+	print alpha
+	ProfOak.train_from_record(alpha)
 	print AI.getWeights()[0][0]
 	print AI.getWeights()[1][0]
 
