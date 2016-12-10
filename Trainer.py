@@ -77,7 +77,7 @@ class Trainer:
 
 
 def main():
-	AI = NN.Net(12, [30, 20, 12], 2)
+	AI = NN.Net(12, [24, 12, 12], 2)
 	ProfOak = Trainer(AI, 12, 2)
 	AI.loadWeights()
 	print AI.getWeights()[0][0]
