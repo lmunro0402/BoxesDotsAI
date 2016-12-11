@@ -17,10 +17,10 @@ class Net(Player):
 		self.layerList = layerList
 		self.layers = [[] for x in range(self.numLayers)]
 		for i in range(layerList[0]):
-			self.layers[0].append(Neuron(self.sizeIn+1, int(random.random()*100)))
+			self.layers[0].append(Neuron(self.sizeIn+1, i))#int(random.random()*100)))
 		for i, nodes in enumerate(layerList[1:]):
 			for x in range(nodes):
-				self.layers[i+1].append(Neuron(len(self.layers[i])+1, int(random.random()*100)))
+				self.layers[i+1].append(Neuron(len(self.layers[i])+1, x))# int(random.random()*100)))
 		self.oldUpdateVector = self.getWeights()*0
 
 	def getWeights(self): 
@@ -123,7 +123,7 @@ class Net(Player):
 
 # MOMENTUM
 
-	def trainMomentum(self, gamma, alpha, old_state, y):
+	def trainMomentum(self, alpha, old_state, y, gamma=0.9):
 		a = []
 		z = []
 		a1 = old_state # Already cleaned
@@ -134,7 +134,7 @@ class Net(Player):
 			a.append(addBias(temp))
 		out = np.delete(a[self.numLayers], 0, axis=0)
 		# print np.hstack((y, out, out-y))
-		print costMeanSquared(y, out) 
+		# print costMeanSquared(y, out) 
 		noBiasWeights = self.getWeights()
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
@@ -158,7 +158,7 @@ class Net(Player):
 		self.updateWeights(updatedWeights)
 
 # NESTEROV ACCELERATED GRADIENT 
-	def trainNAG(self, gamma, alpha, old_state, y):
+	def trainNAG(self, alpha, old_state, y, gamma=0.9):
 # UPDATE WEIGHTS RERUN TO GET FUTURE GRADIENT 
 		a = []
 		z = []
@@ -172,8 +172,8 @@ class Net(Player):
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print np.hstack((y, out, out-y))
-		print costMeanSquared(y, out) 
+		# print np.hstack((y, out, out-y))
+		# print costMeanSquared(y, out) 
 		noBiasWeights = self.getWeights()
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)

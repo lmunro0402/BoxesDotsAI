@@ -59,7 +59,8 @@ class Trainer:
 
 	def train_aI(self, alpha, old_state, new_state):
 		y = self.get_training_move(old_state, new_state)
-		self.roboPikachu.trainNAG(0.8, alpha, old_state, y)
+		self.roboPikachu.trainMomentum(alpha, old_state, y)
+		# self.roboPikachu.trainNAG(alpha, old_state, y)
 
 
 	def train_by_play(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING
@@ -77,9 +78,9 @@ class Trainer:
 
 
 def main():
-	AI = NN.Net(24, [50, 30, 24], 3)
+	AI = NN.Net(12, [20, 12], 2)
 	ProfOak = Trainer(AI, 12, 2)
-	AI.loadWeights()
+	# AI.loadWeights()
 	print AI.getWeights()[0][0]
 	print AI.getWeights()[1][0]
 	alpha = input("Training Rate = ")

@@ -2,6 +2,23 @@
 ###Framework for a deep learning network to play Boxes &amp; Dots. NN Framework created to be easily adaptable for any use though.
 ##Objective: Create an AI capable of beating minmax algorithms and most people in a 3 x 3 Boxes and Dots game.
 
+## Move Diagram
+
+  +--0-0--+--0-1--+--0-2--+
+  |       |       |       | 
+ 1|0     1|1     1|2     1|3 
+  |       |       |       |
+  +--2-0--+--2-1--+--2-2--+
+  |       |       |       | 
+ 3|0     3|1     3|2     3|3 
+  |       |       |       |
+  +--4-0--+--4-1--+--4-2--+
+  |       |       |       | 
+ 5|0     5|1     5|2     5|3 
+  |       |       |       |
+  +--6-0--+--6-1--+--6-2--+
+
+
 #Strategy: 
   - 1) Start with 2 x 2 board
   - 2) Create minmax algorithms for training 
@@ -35,7 +52,7 @@ Current Progress:
 		See: http://sebastianruder.com/optimizing-gradient-descent/index.html#gradientdescentoptimizationalgorithms
 	- Will attempt a modified version to improve one scenario. 
 	- Drafted concept on paper. Unsure if actually applicable. See scan under Reflective momentum.
-	- Not sure if the best approach. Splitting my efforts with reinforcment learning.
-	- Moving on to 3 x 3. Too few states in 2 x 2 + easy to tie.
+	- Not sure if these grad optimizations momentum, nesterov are the best for my situation since I am dealing with AI that has the play the entire game. Splitting my efforts with reinforcment learning.
+	- Moving on to 3 x 3. Too easy to tie in 2 x 2.
 	
 - Reinforced Learning. Will start Udacity class during winter break. 
