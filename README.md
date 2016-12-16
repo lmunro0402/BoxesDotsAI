@@ -1,6 +1,6 @@
-# Deep-Learing Neural Network 
-###Framework for a deep learning network to play Boxes &amp; Dots. NN Framework created to be easily adaptable for any use though.
-##Objective: Create an AI capable of beating minmax algorithms and most people in a 3 x 3 Boxes and Dots game.
+# Deep Learing Network for Boxes&Dots 
+###Framework for a deep learning network to play Boxes &amp; Dots. NN Framework is easily adaptable.
+##Objective: Create an AI capable of mimicing the minmax algorithm. Experiment with layers and nodes needed. Beat people in a 3 x 3 Boxes and Dots game.
 
 ## Move Diagram
 
@@ -19,18 +19,14 @@
   +--6-0--+--6-1--+--6-2--+
 
 
-#Strategy: 
-  - 1) Start with 2 x 2 board
-  - 2) Create minmax algorithms for training 
-      - Experiment with # of layers and nodes 
-      - Have DLN replicate minmax algorithm
-  - 3) Play real people 
-      - Learn from lost games
-      - Surpass minmax algorithm by differentiate between
-        "#" of winning futures vs probabilty of a winning future occuring 
-      - Introduce randomness 
-  - 4) Scale to 3 x 3
-      - Repeat steps 2 - 3
+##Strategy: 
+- 1) Start with 2 x 2 board
+- 2) Play people 
+    - Supervised learning from people's moves
+    - Log all lost games
+- 2) Create minmax algorithm
+    - Experiment with # of layers and nodes 
+    - Have DLN replicate minmax algorithm
       
 
 Current Progress:
@@ -55,4 +51,4 @@ Current Progress:
 	- Not sure if these grad optimizations momentum, nesterov are the best for my situation since I am dealing with AI that has the play the entire game. Splitting my efforts with reinforcment learning.
 	- Moving on to 3 x 3. Too easy to tie in 2 x 2.
 	
-- Reinforced Learning. Will start Udacity class during winter break. 
+- Reinforcement Learning. 
