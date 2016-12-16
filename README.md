@@ -2,23 +2,6 @@
 ###Framework for a deep learning network to play Boxes &amp; Dots. NN Framework is easily adaptable.
 ##Objective: Create an AI capable of mimicing the minmax algorithm. Experiment with layers and nodes needed. Beat people in a 3 x 3 Boxes and Dots game.
 
-## Move Diagram
-
-###  +--0-0--+--0-1--+--0-2--+
-###  |       |       |       | 
-### 1|0     1|1     1|2     1|3 
-###  |       |       |       |
-###  +--2-0--+--2-1--+--2-2--+
-###  |       |       |       | 
-### 3|0     3|1     3|2     3|3 
-###  |       |       |       |
-###  +--4-0--+--4-1--+--4-2--+
-###  |       |       |       | 
-### 5|0     5|1     5|2     5|3 
-###  |       |       |       |
-###  +--6-0--+--6-1--+--6-2--+
-
-
 ##Strategy: 
 - 1) Start with 2 x 2 board
 - 2) Play people 
