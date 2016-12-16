@@ -10,11 +10,10 @@ import Trainer
 
 
 def main():
-	# dim = int(input("Size of grid: "))
-	dim = 2
+	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
 	numMoves = 2*(dim**2+dim)
-	player1 = AI = NN.Net(numMoves, [20, numMoves], dim) 
+	player1 = AI = NN.Net(numMoves, [50, 30, numMoves], dim) 
 	name = raw_input("Enter name: ")
 	player2 = Player(name)
 	val = input("1 for load weights 0 for no: ")

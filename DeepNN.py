@@ -165,8 +165,7 @@ class Net(Player):
 		a1 = old_state
 		a.append(addBias(a1))
 		futureWeights = self.getWeights() - gamma*self.oldUpdateVector
-		# NEED NEW COMPUTEZ FUNCTION NOT PULLING WEIGHTS FROM NODES
-		for i in range(self.numLayers): # EVERYTHING SAME SIZE STILL
+		for i in range(self.numLayers): # same size
 			zi = np.dot(futureWeights[i], a[i]).reshape(np.size(self.layers[i]), 1)
 			z.append(zi)
 			temp = sigmoid(z[i])
