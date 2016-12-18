@@ -1,14 +1,20 @@
 # Neural Network
 #
 # Author: Luke Munro
-from sigNeuron import *
-from BoxesDots import *
+
 import numpy as np
 import random
 
-"""Neural net class for systems with any # of hidden layers."""
+from sigNeuron import *
+from player import *
+from utils import orderMoves
+from utils import makeCommands
+from utils import formatMoves
+from utils import onlyLegal
+from utils import cleanData
 
-class Net(Player):
+class NNet(Player):
+	"""Neural net class for systems with any # of hidden layers."""
 	def __init__(self, sizeIn, layerList, gridSize):
 		Player.__init__(self, "AI")
 		self.sizeIn = sizeIn
@@ -48,14 +54,21 @@ class Net(Player):
 			for x, node in enumerate(layer):
 				node.assignW(loadedWeights[i][x])
 
+# -------------------- Don't need both of these ----------------------------
 
 	def updateWeights(self, newLayerWeights):
 		for i, layer in enumerate(newLayerWeights):
 			np.savetxt('{0}weight{1}.txt'.format(self.gridSize, i), layer)
 		self.loadWeights()
 
-	def internalUpdateWeights(self, newLayerWeights): # IMPROVE UPDATEWEIGHTS
-		return None
+
+	def internalUpdateWeights(self, newLayerWeights): # IMPROVED UPDATEWEIGHTS
+		for i, layer in enumerate(self.layers):
+			for x, node in enumerate(layer):
+				node.assignW(newLayerWeights[i][x])
+
+# ---------------- WHo to delete.. who to delete..... -----------------------
+
 
 	def reg(self, Lambda): # CURRENTLY UNUSED 
 		reg = []
@@ -78,7 +91,7 @@ class Net(Player):
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
 		print out
-		moves = findMoves(out)
+		moves = orderMoves(out)
 		# print moves
 		legalMoves = onlyLegal(moves, game_state)
 		# print legalMoves
@@ -119,7 +132,7 @@ class Net(Player):
 			Grads.append(delta*a[i].transpose())
 		updateVector = alpha*(np.asarray(Grads)) #+ self.reg(0.01))
 		updatedWeights = self.getWeights() - updateVector
-		self.updateWeights(updatedWeights)
+		self.internalUpdateWeights(updatedWeights)
 
 # MOMENTUM
 
@@ -151,8 +164,6 @@ class Net(Player):
 			Grads.append(delta*a[i].transpose())
 		Grads = np.asarray(Grads)
 		updateVector = gamma*self.oldUpdateVector + alpha*Grads
-		# print updateVector[0][0]
-		# print self.oldUpdateVector[0][0]
 		updatedWeights = self.getWeights() - updateVector
 		self.oldUpdateVector = updateVector
 		self.updateWeights(updatedWeights)
@@ -196,8 +207,6 @@ class Net(Player):
 
 
 
-
-
 # -------------------------- Computations -------------------------------
 
 def computeZ(Nodes, X):
@@ -230,11 +239,6 @@ def estimateGradlog(y, a, weights, epsilon): # DO THIS LATER
 
 
 # ---------------------------- Utility ----------------------------------
-
-def cleanData(raw):
-	data = [[int(i)] for x in raw for i in x]
-	data = np.array(data)
-	return data
 		
 def addBias(aLayer): # Adds 1 to vertical vector matrix
 	return np.insert(aLayer, 0, 1, axis=0)
@@ -242,44 +246,3 @@ def addBias(aLayer): # Adds 1 to vertical vector matrix
 
 def rmBias(weightMatrix): # removes bias weight from all nodes 
 	return np.delete(weightMatrix, 0, axis=1)
-
-# ------------------ Translating to BoxesDotes ----------------------
-
-
-def findMoves(probs): # CONDENSE fix for same prob
-	moves = []
-	probs = probs.tolist()
-	tProbs = list(probs)
-	for i in range(len(probs)):
-		high = max(tProbs)
-		index = probs.index(high)
-		probs[index] = -1 # working fix for same probs bug
-		moves.append(index)
-		tProbs.remove(high)
-	return moves
-
-def makeCommands(gridDim):
-	moveCommands = []
-	for i in range(gridDim*2+1):
-		if i%2==0:
-			for x in range(gridDim):
-				moveCommands.append(str(i)+" "+str(x))
-		else:
-			for x in range(gridDim+1):
-				moveCommands.append(str(i)+" "+str(x))
-	return moveCommands
-
-def formatMoves(moveOrder, commands): # CONDENSE
-	fmatMoves = []
-	for i, move in enumerate(moveOrder):
-		fmatMoves.append(commands[move])
-	return fmatMoves
-
-
-def onlyLegal(moves, justMoves): # CONDENSE
-	legalMoves = []
-	for i in range(len(justMoves)):
-		if justMoves[i] == 0:
-			legalMoves.append(i)
-	moveOrder = filter(lambda x: x in legalMoves, moves)
-	return moveOrder

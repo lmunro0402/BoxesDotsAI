@@ -5,15 +5,14 @@
 import DeepNN as NN
 import time, random
 import numpy as np
+from player import Player
 import Trainer
-# -----------------------------------ADD MOVE DIAGRAM -----------------------
-
 
 def main():
 	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
 	numMoves = 2*(dim**2+dim)
-	player1 = AI = NN.Net(numMoves, [50, 30, numMoves], dim) 
+	player1 = AI = NN.NNet(numMoves, [50, 30, numMoves], dim) 
 	name = raw_input("Enter name: ")
 	player2 = Player(name)
 	val = input("1 for load weights 0 for no: ")
@@ -32,7 +31,7 @@ def main():
 			cPlayer = g.players[turns%2]
 			check = cPlayer.getScore()
 			print cPlayer.getName() + " your move"
-			g.turn(cPlayer, g.game_state)
+			g.turn(cPlayer)
 			if cPlayer.getName() != "AI":
 				ProfOak.record(g.old_state, g.game_state)
 				ProfOak.train_by_play(0.1, g.old_state, g.game_state)
@@ -55,7 +54,7 @@ class Grid:
 	def __init__(self, dim, players):
 		""" Only square games allowed"""
 		self.dim = dim 
-		assert self.dim < 10, "Less than 10 please" # CHANGE COMMAND INPUT FOR BIGGER GAMES
+		assert self.dim < 10, "Less than 10 please"
 		self.usedBoxes = 0
 		self.players = players
 		self.game_state = []
@@ -74,18 +73,21 @@ class Grid:
 				self.game_state[i][x] = 0
 
 
+# ------------------ Funcs for minimax -----------------
+
+
 	def getDim(self):
 		return self.dim
 
 	def add_players(self, players):
 		self.players = players
 
-	def turn(self, player, game_state):
+	def turn(self, player):
 		self.old_state = [int(i) for x in self.game_state for i in x]
-		move = player.getMove(game_state).split(" ")
+		move = player.getMove(self.game_state).split(" ")
 		while not self.valid_move(move):
 			print 'Invalid Move'
-			move = player.getMove(game_state).split(" ")
+			move = player.getMove(self.game_state).split(" ")
 		move = [int(x) for x in move]
 		player.last_move = move
 		self.move(move[0], move[1])
@@ -130,6 +132,7 @@ class Grid:
 
 
 	def get_boxes(self):
+		"'Converts game_state into list of each box, contains repeats.'"
 		boxes = []
 		box_scores = []
 		for i in range(0, self.dim*2, 2):
@@ -197,29 +200,6 @@ class Grid:
 		return str(moves) # + scores)
 	def train_data(self):
 		return [i for x in self.game_state for i in x]
-
-# -------------------------- Player Class ----------------------------------
-class Player:
-	def __init__(self, name):
-		self.name = name
-		self.score = 0
-		self.last_move = []
-
-	def getName(self):
-		return self.name
-
-	def getMove(self, game_state):
-		move = raw_input("Input 2 numbers: Row then Column (ex. first vertical line would be 10): ")
-		return move
-
-	def plusOne(self):
-		self.score += 1
-
-	def getScore(self):
- 		return self.score
-
- 	def reset(self):
- 		self.score = 0
 
 if __name__ == "__main__":
 	main()

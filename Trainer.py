@@ -9,7 +9,7 @@ class Trainer:
 	def __init__(self, AI, sizeIn, gridSize, playerName="Training"):
 		self.gridSize = gridSize
 		self.sizeIn = sizeIn
-		self.roboPikachu = AI
+		self.AI = AI
 		self.playerName = playerName
 		self.pokedex = [playerName]
 
@@ -59,11 +59,11 @@ class Trainer:
 
 	def train_aI(self, alpha, old_state, new_state):
 		y = self.get_training_move(old_state, new_state)
-		self.roboPikachu.trainMomentum(alpha, old_state, y)
-		# self.roboPikachu.trainNAG(alpha, old_state, y)
+		self.AI.train(alpha, old_state, y)
+		# self.AI.trainNAG(alpha, old_state, y)
 
 
-	def train_by_play(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING
+	def train_by_play(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING LOL ;)
 		new_state = self.format_game_state(game_state)
 		self.train_aI(alpha, old_state, new_state)
 
@@ -78,7 +78,7 @@ class Trainer:
 
 
 def main():
-	AI = NN.Net(12, [50, 30, 12], 2)
+	AI = NN.NNet(12, [50, 30, 12], 2)
 	ProfOak = Trainer(AI, 12, 2)
 	# AI.loadWeights()
 	print AI.getWeights()[0][0]
