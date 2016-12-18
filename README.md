@@ -22,6 +22,8 @@
 - Trainer created, training for data working, started collecting            12/8
 - Implemented gradient descent w/ momentum 				    12/9
 - Implemented Nesterov accelerated gradient                                 12/10
+- Started work on minimax                                                   12/16
+- Created beta minimax w/ depth                                             12/17
 
 
 #Goals & Thoughts:
@@ -31,3 +33,5 @@
 		See: http://sebastianruder.com/optimizing-gradient-descent/index.html#gradientdescentoptimizationalgorithms
 	
 - Reinforcement Learning. 
+
+- Minimax will pick brach with most winning futures which is not necessarily the branch with the highest probably winning outcome. Will attempt to get DLNN to surpass this minimax shortcoming. 
