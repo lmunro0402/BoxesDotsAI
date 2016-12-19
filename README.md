@@ -24,6 +24,7 @@
 - Implemented Nesterov accelerated gradient                                 12/10
 - Started work on minimax                                                   12/16
 - Created beta minimax w/ depth                                             12/17
+- Fixed minimax bugs, starting to train                                     12/18
 
 
 #Goals & Thoughts:
@@ -34,4 +35,6 @@
 	
 - Reinforcement Learning. 
 
-- Minimax will pick brach with most winning futures which is not necessarily the branch with the highest probably winning outcome. Will attempt to get DLNN to surpass this minimax shortcoming. 
+- Minimax algorithm
+
+- As this project is drawing to an end, I'm realizing what's really needed is CPU power and tons^(tons) of training data. Playing and training against the minimax works well but games take too long ~ 10 sec w/ current depth. To actually train the DLNN I think I need in the millions of recorded games. My laptop doesn't really cut it...  

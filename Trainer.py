@@ -57,30 +57,33 @@ class Trainer:
 		return clean_data
 
 
-	def train_aI(self, alpha, old_state, new_state):
+	def train_AI(self, alpha, old_state, new_state):
 		y = self.get_training_move(old_state, new_state)
-		self.AI.train(alpha, old_state, y)
-		# self.AI.trainNAG(alpha, old_state, y)
+		# self.AI.train(alpha, old_state, y)
+		self.AI.trainNAG(alpha, old_state, y)
 
 
 	def train_by_play(self, alpha, old_state, game_state): # FOR ON THE JOB TRAINING LOL ;)
 		new_state = self.format_game_state(game_state)
-		self.train_aI(alpha, old_state, new_state)
+		self.train_AI(alpha, old_state, new_state)
 
 
 	def train_from_record(self, alpha):
 		training_data = self.data_from_record()
-		for pair in training_data:
+		for i, pair in enumerate(training_data):
+			print i
 			old_state = pair[0]
 			new_state = pair[1]
-			self.train_aI(alpha, old_state, new_state)
+			self.train_AI(alpha, old_state, new_state)
 
 
 
 def main():
-	AI = NN.NNet(12, [50, 30, 12], 2)
-	ProfOak = Trainer(AI, 12, 2)
-	# AI.loadWeights()
+	dim = int(input("Game size: "))
+	numMoves = 2*(dim**2+dim)
+	AI = NN.NNet(numMoves, [50, 30, numMoves], dim)
+	ProfOak = Trainer(AI, numMoves, dim)
+	AI.loadWeights()
 	print AI.getWeights()[0][0]
 	print AI.getWeights()[1][0]
 	alpha = input("Training Rate = ")

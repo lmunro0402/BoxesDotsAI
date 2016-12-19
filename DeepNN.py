@@ -6,7 +6,7 @@ import numpy as np
 import random
 
 from sigNeuron import *
-from player import *
+from Player import *
 from utils import orderMoves
 from utils import makeCommands
 from utils import formatMoves
@@ -54,7 +54,7 @@ class NNet(Player):
 			for x, node in enumerate(layer):
 				node.assignW(loadedWeights[i][x])
 
-# -------------------- Don't need both of these ----------------------------
+# -------------------- Keep both of these  ----------------------------
 
 	def updateWeights(self, newLayerWeights):
 		for i, layer in enumerate(newLayerWeights):
@@ -66,8 +66,6 @@ class NNet(Player):
 		for i, layer in enumerate(self.layers):
 			for x, node in enumerate(layer):
 				node.assignW(newLayerWeights[i][x])
-
-# ---------------- WHo to delete.. who to delete..... -----------------------
 
 
 	def reg(self, Lambda): # CURRENTLY UNUSED 
@@ -90,7 +88,7 @@ class NNet(Player):
 			a.append(addBias(temp))
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print out
+		# print out
 		moves = orderMoves(out)
 		# print moves
 		legalMoves = onlyLegal(moves, game_state)
@@ -113,8 +111,8 @@ class NNet(Player):
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print np.hstack((y, out, out-y))
-		print costMeanSquared(y, out) 
+		# print np.hstack((y, out, out-y))
+		# print costMeanSquared(y, out) 
 		noBiasWeights = self.getWeights()
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
@@ -151,7 +149,6 @@ class NNet(Player):
 		noBiasWeights = self.getWeights()
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
-
 		deltas = []
 		initialDelta = (out - y) * sigGradient(z[len(z)-1])
 		deltas.append(initialDelta)
@@ -166,7 +163,7 @@ class NNet(Player):
 		updateVector = gamma*self.oldUpdateVector + alpha*Grads
 		updatedWeights = self.getWeights() - updateVector
 		self.oldUpdateVector = updateVector
-		self.updateWeights(updatedWeights)
+		self.internalUpdateWeights(updatedWeights)
 
 # NESTEROV ACCELERATED GRADIENT 
 	def trainNAG(self, alpha, old_state, y, gamma=0.9):
@@ -202,7 +199,7 @@ class NNet(Player):
 		updateVector = gamma*self.oldUpdateVector + alpha*futureGrads
 		updatedWeights = self.getWeights() - updateVector
 		self.oldUpdateVector = updateVector
-		self.updateWeights(updatedWeights)
+		self.internalUpdateWeights(updatedWeights)
 
 
 

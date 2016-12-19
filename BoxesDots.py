@@ -5,47 +5,76 @@
 import DeepNN as NN
 import time, random
 import numpy as np
-from player import Player
+from Player import Player
 import Trainer
+from Clone import *
+from Minimax import *
+import utils as UTIL
 
 def main():
 	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
+	mode = int(input("Player (0) or Minimax (1) [Input 0 or 1]: "))
 	numMoves = 2*(dim**2+dim)
+	if mode == 1:
+		player2 = Minimax(dim)
+	else:
+		name = raw_input("Enter name: ")
+		player2 = Player(name)
 	player1 = AI = NN.NNet(numMoves, [50, 30, numMoves], dim) 
-	name = raw_input("Enter name: ")
-	player2 = Player(name)
-	val = input("1 for load weights 0 for no: ")
+	val = input("Load weights (1) | Random AI (0) (Overwites existing!): ")
 	if  val == 1:
 		AI.loadWeights()
 
-	ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
-
-	g = Grid(dim, [player1, player2])
-
-	for i in range(train):
-		turns = random.randint(0,1) * 0
-		print g.players[turns].getName() + " starts\n"
-		g.display_game()
-		while g.game_status():
-			cPlayer = g.players[turns%2]
-			check = cPlayer.getScore()
-			print cPlayer.getName() + " your move"
-			g.turn(cPlayer)
-			if cPlayer.getName() != "AI":
-				ProfOak.record(g.old_state, g.game_state)
-				ProfOak.train_by_play(0.1, g.old_state, g.game_state)
-			print cPlayer.getName() + " move - " + str(cPlayer.last_move)
+	if mode == 0:
+		ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
+		g = Grid(dim, [player1, player2])
+		for i in range(train):
+			turns = random.randint(0,1) 
+			print g.players[turns].getName() + " starts\n"
 			g.display_game()
-			print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
-			print "---- Next Move ----"
-			if check == cPlayer.getScore():
-			 	turns += 1
-		g.show_results()
-		if AI.getScore() < player2.getScore():
-			ProfOak.write_record()
-		g.reset()
-	AI.writeWeights()
+			while g.game_status():
+				cPlayer = g.players[turns%2]
+				check = cPlayer.getScore()
+				print cPlayer.getName() + " your move"
+				g.turn(cPlayer)
+				if cPlayer.getName() != "AI":
+					ProfOak.record(g.old_state, g.game_state)
+				print cPlayer.getName() + " move - " + str(cPlayer.last_move)
+				g.display_game()
+				print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
+				print "---- Next Move ----"
+				if check == cPlayer.getScore():
+				 	turns += 1
+			g.show_results()
+			if AI.getScore() < player2.getScore():
+				ProfOak.write_record()
+			g.reset()
+	else:
+		ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
+		g = Grid(dim, [player1, player2])
+		for i in range(train):
+			turns = random.randint(0,1) 
+			while g.game_status():
+				cPlayer = g.players[turns%2]
+				check = cPlayer.getScore()
+				g.turn(cPlayer)
+				print cPlayer.getName() + " Move"
+				g.display_game()
+				if cPlayer.getName() != "AI":
+					ProfOak.record(g.old_state, g.game_state)
+					ProfOak.train_by_play(0.1, g.old_state, g.game_state)
+				if check == cPlayer.getScore():
+				 	turns += 1
+			if AI.getScore() < player2.getScore():
+				ProfOak.write_record()
+				print "OKAY"
+			else:
+				print "HOLY SHIT NIGGA"
+			g.reset()
+			AI.writeWeights()
+
+	print "DONE PLAYING"
 
 
 
@@ -54,7 +83,7 @@ class Grid:
 	def __init__(self, dim, players):
 		""" Only square games allowed"""
 		self.dim = dim 
-		assert self.dim < 10, "Less than 10 please"
+		assert self.dim < 10, "Less than 10 please" 
 		self.usedBoxes = 0
 		self.players = players
 		self.game_state = []
@@ -63,6 +92,7 @@ class Grid:
 			self.game_state.append([0]*(dim+1))
 		self.game_state.append([0]*dim)
 		self.old_state = []
+
 
 	def reset(self):
 		self.players[0].reset()
@@ -75,6 +105,19 @@ class Grid:
 
 # ------------------ Funcs for minimax -----------------
 
+	def get_depth(self): # IMPROVE THIS WITH THINKING
+		moves_made = sum(UTIL.clean_game_state(self.game_state))
+		num_moves = 2*(self.dim**2+self.dim)
+		available_moves = num_moves - moves_made
+		if available_moves > self.dim*(self.dim+1):
+			depth = 3
+		else:
+			depth = 4
+		return depth
+
+
+
+
 
 	def getDim(self):
 		return self.dim
@@ -84,7 +127,10 @@ class Grid:
 
 	def turn(self, player):
 		self.old_state = [int(i) for x in self.game_state for i in x]
-		move = player.getMove(self.game_state).split(" ")
+		if player.getName() == "almost Minimax":
+			move = player.getMove(self.game_state, self.get_depth()).split(" ")
+		else:
+			move = player.getMove(self.game_state).split(" ")
 		while not self.valid_move(move):
 			print 'Invalid Move'
 			move = player.getMove(self.game_state).split(" ")

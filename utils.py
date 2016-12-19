@@ -18,15 +18,10 @@ def orderMoves(probs): # CONDENSE fix for same prob
 		tProbs.remove(high)
 	return moves
 
-# ----------- For minimax algorithm -----------
-
 def find_moves(game_state, grid_dim):
 	game_state = clean_game_state(game_state)
 	moves = [x for x in range(len(game_state)) if game_state[x] == 0]
 	return moves
-
-def clean_game_state(game_state):
-	return [x for row in game_state for x in row]
 
 
 def makeCommands(grid_dim):
@@ -60,3 +55,15 @@ def cleanData(raw):
 	data = np.array(data)
 	return data
 
+# ----------- For minimax algorithm -----------
+
+def clean_game_state(game_state):
+	return [x for row in game_state for x in row]
+
+def num_best_moves(move_ratings):
+	possible_best_moves = 0
+	best_score = max(move_ratings)
+	for score in move_ratings:
+		if score == best_score:
+			possible_best_moves += 1
+	return possible_best_moves
