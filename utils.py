@@ -67,3 +67,58 @@ def num_best_moves(move_ratings):
 		if score == best_score:
 			possible_best_moves += 1
 	return possible_best_moves
+
+# ---------------------------------------------
+
+def relive_game(dim, game_record):
+	for pair in game_record[1:]:
+		for state in pair:
+			print "- Next Move -"
+			display_game(dim, state)
+
+def relive_game_from_file(dim, game_record):
+	for state in game_record:
+		print "- Next Move -"
+		display_game(dim, state)
+
+def assemble_state(dim, game_record):
+	game_state = []
+	i = 0
+	for x in range(dim*2+1):
+		if x%2==0:
+			game_state.append(game_record[i:i+3])
+			i += 3
+		else:
+			game_state.append(game_record[i:i+4])
+			i += 4
+	return game_state
+
+
+
+def display_game(dim, game_state):
+	buffer = [] #what is this
+	hLine = "+---"
+	hEmpty = "+   "
+	vLine = "|   "
+	vEmpty = "    "
+	# Top row
+	for i in range(dim):
+		if game_state[0][i] == 1:
+			buffer.append(hLine)
+		else: buffer.append(hEmpty)
+	buffer.append("+\n")
+	# Middle rows
+	for i in range(1, dim*2, 2):
+		# Make horizontal passes
+		for j in range(dim+1):
+			if game_state[i][j] ==  1:
+				buffer.append(vLine)
+			else: buffer.append(vEmpty)
+		buffer.append("\n")
+		# Vertical passes
+		for j in range(dim):
+			if game_state[i+1][j] == 1:
+				buffer.append(hLine)
+			else: buffer.append(hEmpty)
+		buffer.append("+\n")
+	print "".join(buffer)

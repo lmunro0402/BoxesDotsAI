@@ -9,25 +9,46 @@ from Player import Player
 import Trainer
 from Clone import *
 from Minimax import *
+import copy
 import utils as UTIL
 
 def main():
 	dim = int(input("Size of grid: "))
 	train = int(input("How many games: "))
-	mode = int(input("Player (0) or Minimax (1) [Input 0 or 1]: "))
+	mode = int(input("Player 1 is?\n You (0) | Minimax (1): "))
 	numMoves = 2*(dim**2+dim)
 	if mode == 1:
-		player2 = Minimax(dim)
-	else:
-		name = raw_input("Enter name: ")
-		player2 = Player(name)
-	player1 = AI = NN.NNet(numMoves, [50, 30, numMoves], dim) 
-	val = input("Load weights (1) | Random AI (0) (Overwites existing!): ")
-	if  val == 1:
-		AI.loadWeights()
+		base = raw_input("Minimax bonus depth: ")
+		player1 = Minimax(dim, base)
+	elif mode == 0:
+		name = "Human" #raw_input("Enter name: ")
+		player1 = Player(name)
+	mode2 = int(input("Who are you playing?\n ShallowBlue AI (0) | Minimax (1): "))
+	if mode2 == 1:
+		base2 = raw_input("Minimax bonus depth: ")
+		player2 = AI = Minimax(dim, base2)
+	elif mode2 == 0:	
+		val = input("Load AI (0) | Initialize AI (1): ")
+		if val == 1:
+			weight_params = []
+			for i in range(input("Input # of layers: ")):
+				weight_params.append(input("Layer {0}\n Input # of nodes: ".format(i)))
+			weight_params.append(numMoves) 
+			print "Initializing layers - " + str(weight_params[:len(weight_params)-1])
+			player2 = AI = NN.NNet(numMoves, weight_params, dim)
+		elif val == 0:
+			try:
+				weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
+			except:
+				print "Failed to load AI"
+			print "Initializing layers - " + str(weight_params[:len(weight_params)-1])
+			player2 = AI = NN.NNet(numMoves, weight_params, dim)
+			AI.loadWeights()
+
+	file_num = str(raw_input("Write data to which file? (#Depth1Depth2): "))
 
 	if mode == 0:
-		ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
+		Trainer1 = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
 		g = Grid(dim, [player1, player2])
 		for i in range(train):
 			turns = random.randint(0,1) 
@@ -38,8 +59,8 @@ def main():
 				check = cPlayer.getScore()
 				print cPlayer.getName() + " your move"
 				g.turn(cPlayer)
-				if cPlayer.getName() != "AI":
-					ProfOak.record(g.old_state, g.game_state)
+				if cPlayer.getName() != "Shallow Blue":
+					Trainer1.record(g.old_state, g.game_state)
 				print cPlayer.getName() + " move - " + str(cPlayer.last_move)
 				g.display_game()
 				print cPlayer.getName() + " your score is " + str(cPlayer.getScore()) + "\n"
@@ -47,34 +68,67 @@ def main():
 				if check == cPlayer.getScore():
 				 	turns += 1
 			g.show_results()
-			if AI.getScore() < player2.getScore():
-				ProfOak.write_record()
+			if player1.getScore() > AI.getScore():
+				print "RECORDED IN \"move_record3#H\""
+				Trainer1.write_record(file_num)
+			elif AI.getScore() > player1.getScore():
+				print "Nice try, Minimax. Starting victory lap..."
+				time.sleep(1)
+				UTIL.relive_game(dim, Trainer1.pokedex)
+				print "Victory lap finished."
+				Trainer1.write_record("SB-Conquests")
 			g.reset()
 	else:
-		ProfOak = Trainer.Trainer(AI, numMoves, dim,  player2.getName())
+		Trainer1 = Trainer.Trainer(AI, numMoves, dim,  "Minimax - " + str(base))
+		Trainer2 = Trainer.Trainer(AI, numMoves, dim, "Minimax - " + str(base2))
 		g = Grid(dim, [player1, player2])
 		for i in range(train):
+			print "Game - " + str(i)
 			turns = random.randint(0,1) 
 			while g.game_status():
 				cPlayer = g.players[turns%2]
 				check = cPlayer.getScore()
 				g.turn(cPlayer)
-				print cPlayer.getName() + " Move"
-				g.display_game()
-				if cPlayer.getName() != "AI":
-					ProfOak.record(g.old_state, g.game_state)
-					ProfOak.train_by_play(0.1, g.old_state, g.game_state)
+				# print cPlayer.getName() + " - " + str(cPlayer.base)
+				# g.display_game()
+				new_state = copy.deepcopy(g.game_state) # BREAKING CONNECTION
+				if cPlayer == player1:
+					Trainer1.record(g.old_state, new_state)
+				else:
+					Trainer2.record(g.old_state, new_state)
+				# Trainer1.train_by_play(0.1, g.old_state, new_state)
 				if check == cPlayer.getScore():
 				 	turns += 1
-			if AI.getScore() < player2.getScore():
-				ProfOak.write_record()
-				print "OKAY"
-			else:
-				print "HOLY SHIT NIGGA"
+			if mode2 == 1 and mode == 1:
+				if list(base)[:3] == ["S", "E", "T"]:
+					if player2.getScore() > player1.getScore():
+						Trainer2.write_record(file_num)
+				elif player1.getScore() > player2.getScore():
+					Trainer1.write_record(file_num)
+				elif player2.getScore() > player1.getScore():
+					Trainer2.write_record(file_num)
+				else:
+					print "Whatever you did. Stop doing it."
+			elif player1.getScore() > AI.getScore():
+				Trainer1.write_record("MINvsSB")
+				print "Ehh lucky."
+			elif AI.getScore() > player1.getScore():
+				print "Nice try, Minimax. Starting victory lap..."
+				time.sleep(1)
+				UTIL.relive_game(dim, Trainer1.pokedex)
+				print "Victory lap finished."
+			Trainer1.clear_record()
+			Trainer2.clear_record()
+			g.show_results()
 			g.reset()
-			AI.writeWeights()
-
 	print "DONE PLAYING"
+	if player2.getName() == "ShallowBlue":
+		choice = input("Save weights?\n No (0) | Yes (1) (Overides existing!): ")
+		if choice == 1:
+			AI.writeWeights()
+			print "Weights saved."
+			np.savetxt('weight_params.txt', np.asarray(weight_params))
+	print "Exiting..."
 
 
 
@@ -105,17 +159,17 @@ class Grid:
 
 # ------------------ Funcs for minimax -----------------
 
-	def get_depth(self): # IMPROVE THIS WITH THINKING
+	def get_depth(self, base): # IMPROVE THIS WITH THINKING
 		moves_made = sum(UTIL.clean_game_state(self.game_state))
 		num_moves = 2*(self.dim**2+self.dim)
 		available_moves = num_moves - moves_made
-		if available_moves > self.dim*(self.dim+1):
-			depth = 3
+		if list(base)[:3] == ["S", "E", "T"]: # this can be better!!!!! WAY BETTER!!!
+				depth = int(list(base)[3])
+		elif available_moves > self.dim*(self.dim+1)-2:
+			depth = 2
 		else:
-			depth = 4
+			depth = int(base)+2
 		return depth
-
-
 
 
 
@@ -126,9 +180,9 @@ class Grid:
 		self.players = players
 
 	def turn(self, player):
-		self.old_state = [int(i) for x in self.game_state for i in x]
+		self.old_state = copy.deepcopy(self.game_state) # BREAKING CONNECTION
 		if player.getName() == "almost Minimax":
-			move = player.getMove(self.game_state, self.get_depth()).split(" ")
+			move = player.getMove(self.game_state, self.get_depth(player.base)).split(" ")
 		else:
 			move = player.getMove(self.game_state).split(" ")
 		while not self.valid_move(move):
@@ -144,7 +198,6 @@ class Grid:
 
 #------------------------------ Checks ----------------------------------
 
-# Figure out errors for this - works now but ehh
 	def valid_move(self, move): 
 		try:
 			move = [int(x) for x in move]
@@ -164,9 +217,8 @@ class Grid:
 	def game_status(self):
 		return (self.dim**2) != self.usedBoxes
 
-	def update_scores(self, player): # THIS IS BUGGED sometimes need +2 : FIXED
+	def update_scores(self, player): 
 		count = sum(self.check_boxes())
-	#	print count
 		if count != self.usedBoxes:
 			diff = abs(self.usedBoxes-count)
 			if diff == 1:
@@ -200,7 +252,7 @@ class Grid:
 		return self.game_state
 
 	def display_game(self):
-		buffer = [] #buffer? what is this
+		buffer = [] #what is this
 		hLine = "+---"
 		hEmpty = "+   "
 		vLine = "|   "
@@ -228,7 +280,7 @@ class Grid:
 		print "".join(buffer)
 
 	def show_results(self):
-		print "---GAME RESULTS---"
+		# print "---GAME RESULTS---"
 		print self.players[0].getName() + " score is " + str(self.players[0].getScore())
 		print self.players[1].getName() + " score is " + str(self.players[1].getScore())
 		if self.players[0].getScore() == self.players[1].getScore():

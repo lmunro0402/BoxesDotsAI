@@ -16,17 +16,17 @@ from utils import cleanData
 class NNet(Player):
 	"""Neural net class for systems with any # of hidden layers."""
 	def __init__(self, sizeIn, layerList, gridSize):
-		Player.__init__(self, "AI")
+		Player.__init__(self, "ShallowBlue")
 		self.sizeIn = sizeIn
 		self.gridSize = gridSize
 		self.numLayers = len(layerList)
 		self.layerList = layerList
 		self.layers = [[] for x in range(self.numLayers)]
 		for i in range(layerList[0]):
-			self.layers[0].append(Neuron(self.sizeIn+1, i))#int(random.random()*100)))
+			self.layers[0].append(Neuron(self.sizeIn+1, int(random.random()*100)))
 		for i, nodes in enumerate(layerList[1:]):
 			for x in range(nodes):
-				self.layers[i+1].append(Neuron(len(self.layers[i])+1, x))# int(random.random()*100)))
+				self.layers[i+1].append(Neuron(len(self.layers[i])+1, int(random.random()*100)))
 		self.oldUpdateVector = self.getWeights()*0
 
 	def getWeights(self): 
@@ -67,12 +67,13 @@ class NNet(Player):
 			for x, node in enumerate(layer):
 				node.assignW(newLayerWeights[i][x])
 
+# ---------------------------------------------------------------------
 
 	def reg(self, Lambda): # CURRENTLY UNUSED 
 		reg = []
 		for w in self.getWeights():
 			np.insert(w, 0, 0, axis=0) # DON'T REGULARIZE BIAS SET TO 0
-			reg.append(Lambda * w)
+			reg.append(2*Lambda * w)
 		return np.asarray(reg)
 
 
@@ -128,7 +129,7 @@ class NNet(Player):
 		# REORDER DELTAS FROM FIRST LAYER TO LAST			
 		for i, delta in enumerate(deltas[::-1]):
 			Grads.append(delta*a[i].transpose())
-		updateVector = alpha*(np.asarray(Grads)) #+ self.reg(0.01))
+		updateVector = alpha*(np.asarray(Grads)) + self.reg(0.1)
 		updatedWeights = self.getWeights() - updateVector
 		self.internalUpdateWeights(updatedWeights)
 
