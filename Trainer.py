@@ -7,12 +7,12 @@ import DeepNN as NN
 import utils as UTIL
 
 class Trainer:
-	def __init__(self, AI, sizeIn, gridSize, playerName="Training"):
+	def __init__(self, sizeIn, gridSize, AI):
 		self.gridSize = gridSize
 		self.sizeIn = sizeIn
-		self.AI = AI
-		self.playerName = playerName
-		self.pokedex = [playerName]
+		self.AI = AI # can just be a player but we only train AIs
+		self.playerName = AI.getName()
+		self.pokedex = [self.playerName]
 
 
 	def format_game_state(self, state):
@@ -59,7 +59,6 @@ class Trainer:
 
 	def train_AI(self, alpha, old_state, new_state):
 		y = self.get_training_move(old_state, new_state)
-		# self.AI.train(alpha, old_state, y)
 		self.AI.trainNAG(alpha, old_state, y)
 
 	def get_training_move(self, old_state, new_state):
@@ -77,45 +76,70 @@ class Trainer:
 
 	def train_from_record(self, alpha, file_num):
 		training_data = self.data_from_record(file_num)
-		print len(training_data)
+		print "Total moves - " + str(len(training_data))
+		print "Current progress: "
 		for i, pair in enumerate(training_data):
 			old_state = pair[0]
 			new_state = pair[1]
 			self.train_AI(alpha, old_state, new_state)
-			if i%1000 == 0:
+			if i%5000 == 0:
 				print i
 				self.AI.writeWeights()
+		self.AI.writeWeights()
 
 
 def main():
 	dim = int(input("Game size: "))
 	numMoves = 2*(dim**2+dim)
-	mode1 = input("Train (0) | View recorded games (1): ")
-	file_num = raw_input("Input file extension: ")
-	AI = NN.NNet(numMoves, [50, 30, numMoves], dim)
-	Ash = Trainer(AI, numMoves, dim)
-	if mode1 == 1:
+	mode1 = input("Train (0) | View recorded games (1) | Create new AI (2):  ")
+
+	if mode1 == 0:
+		try:
+			weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
+			print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
+			AI = NN.NNet(numMoves, dim)
+		except:
+			print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
+			raise SystemExit		
+		Ash = Trainer(numMoves, dim, AI)
+		for layer in range(len(weight_params)):
+			print AI.getWeights()[layer][0]
+		print "Weight preview completed. "
+		file_num = raw_input("Input extension of training file (string after #): ")
+		alpha = input("Enter Training Rate = ")
+		print "Extracting data. Please wait..."
+		Ash.train_from_record(alpha, file_num)
+		print "Trained weights preview"
+		for layer in range(len(weight_params)):
+			print AI.getWeights()[layer][0]
+	elif mode1 == 1:
+		# CREATE A PLACEHOLDER AI FOR TRAINER OBJECT
+		AI = NN.NNet(numMoves, dim, [10, numMoves])
+		Ash = Trainer(numMoves, dim, AI)
+		file_num = raw_input("Input file extension: ")
 		print "Please wait..."
 		print "FYI - These are one-sided, past state then new state."
 		games = Ash.data_from_record(file_num)
 		print "# Moves - " + str(len(games))
 		for state_index in range(0, len(games)):
-			# print games[state_index]
 			state_pair = [UTIL.assemble_state(dim, games[state_index][0]),\
 				 								UTIL.assemble_state(dim, games[state_index][1])]
 			UTIL.relive_game_from_file(dim, state_pair)
-			# print state_pair
 			raw_input("Press Enter to continue:")
-	elif mode1 == 0:
-		mode2 = input("Load weights (0) | Random AI (1) (This WILL overwrite your old AI): ")
-		if mode2 == 0:
-			AI.loadWeights()
-		print AI.getWeights()[0][0]
-		print AI.getWeights()[1][0]
-		alpha = input("Training Rate = ")
-		Ash.train_from_record(alpha, file_num)
-		print AI.getWeights()[0][0]
-		print AI.getWeights()[1][0]
+	elif mode1 == 2:
+		weight_params = []
+		for i in range(input("Input # of layers: ")):
+			weight_params.append(input("Layer {0}\n Input # of nodes: ".format(i)))
+		weight_params.append(numMoves) 
+		raw_input("Press enter to create new AI **WARNING: This overrides any existing AI! CTRL+C to exit now.**: ")
+		print "Initializing layers - " + str(weight_params[:len(weight_params)-1])
+		AI = NN.NNet(numMoves, dim, weight_params)
+		np.savetxt('weight_params.txt', np.asarray(weight_params)) # using np cause it's shorter. 
+		AI.writeWeights()
+	else:
+		print "Unsupported command."
+	print "Done.\nExiting..."
+
 
 if __name__=="__main__":
 	main()

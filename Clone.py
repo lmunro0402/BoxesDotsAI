@@ -20,9 +20,6 @@ class Clone:
 		self.usedBoxes = 0
 		self.check_boxes()
 
-	# def collect_score(self):
-	# 	return self.score + prev_node.collect_score()
-
 	def plus(self, points):
 		self.score += points
 
@@ -58,11 +55,8 @@ class Clone:
 
 	def check_boxes(self):
 		boxes = self.get_boxes()
-		# print boxes
 		box_scores = [sum(x)//4 for x in boxes]
-		# print box_scores
 		self.usedBoxes = sum(box_scores)
-		# return box_scores
 
 
 	def display_game(self):
@@ -92,10 +86,3 @@ class Clone:
 				else: buffer.append(hEmpty)
 			buffer.append("+\n")
 		print "".join(buffer)
-
-	# def updateBoxes(self):
-	# 	boxes - self.get_boxes()
-	# 	box_scores = [sum(x)//4 for x in boxes]
-	# 	self.usedBoxes = sum(box_scores)
-
-

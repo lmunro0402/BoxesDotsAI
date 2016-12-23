@@ -15,7 +15,7 @@ from utils import cleanData
 
 class NNet(Player):
 	"""Neural net class for systems with any # of hidden layers."""
-	def __init__(self, sizeIn, layerList, gridSize):
+	def __init__(self, sizeIn, gridSize, layerList=map(int, np.loadtxt('weight_params.txt').tolist())):
 		Player.__init__(self, "ShallowBlue")
 		self.sizeIn = sizeIn
 		self.gridSize = gridSize
@@ -43,7 +43,7 @@ class NNet(Player):
 	def writeWeights(self):
 		layerWeights = self.getWeights()
 		for i, layer in enumerate(layerWeights):
-			np.savetxt('{0}weight{1}.txt'.format(self.gridSize, i), layer) # one file later
+			np.savetxt('{0}weight{1}.txt'.format(self.gridSize, i), layer)
 
 
 	def loadWeights(self): # BREAKS IF YOU ONLY HAVE 1 NODE IN A LAYER
@@ -73,7 +73,7 @@ class NNet(Player):
 		reg = []
 		for w in self.getWeights():
 			np.insert(w, 0, 0, axis=0) # DON'T REGULARIZE BIAS SET TO 0
-			reg.append(2*Lambda * w)
+			reg.append(Lambda * w)
 		return np.asarray(reg)
 
 
@@ -118,7 +118,7 @@ class NNet(Player):
 		for i, weights in enumerate(noBiasWeights):
 			noBiasWeights[i] = rmBias(weights)
 		deltas = []
-		# EDIT THIS IF CHANING COST FUNCTION
+		# EDIT THIS IF CHANGING COST FUNCTION
 		initialDelta = (out - y) * sigGradient(z[len(z)-1])
 		deltas.append(initialDelta)
 		for x in range(self.numLayers-2, -1, -1):
@@ -129,7 +129,7 @@ class NNet(Player):
 		# REORDER DELTAS FROM FIRST LAYER TO LAST			
 		for i, delta in enumerate(deltas[::-1]):
 			Grads.append(delta*a[i].transpose())
-		updateVector = alpha*(np.asarray(Grads)) + self.reg(0.1)
+		updateVector = alpha*(np.asarray(Grads))
 		updatedWeights = self.getWeights() - updateVector
 		self.internalUpdateWeights(updatedWeights)
 
@@ -197,7 +197,7 @@ class NNet(Player):
 			futureGrads.append(delta*a[i].transpose())
 		futureGrads = np.asarray(futureGrads)
 		# GRADIENTS FOR FUTURE THETAS
-		updateVector = gamma*self.oldUpdateVector + alpha*futureGrads
+		updateVector = gamma*self.oldUpdateVector + alpha*(futureGrads)
 		updatedWeights = self.getWeights() - updateVector
 		self.oldUpdateVector = updateVector
 		self.internalUpdateWeights(updatedWeights)
@@ -228,7 +228,7 @@ def costMeanSquared(y, a):
 def sigGradient(z):
 	return sigmoid(z) * (1 - sigmoid(z))
 
-def estimateGradlog(y, a, weights, epsilon): # DO THIS LATER
+def estimateGradlog(y, a, weights, epsilon): # DO THIS LATER.
 	for i in range(weights):
 		for i in range(weights[i]):
 			continue
