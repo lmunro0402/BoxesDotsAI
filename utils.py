@@ -122,3 +122,12 @@ def display_game(dim, game_state):
 			else: buffer.append(hEmpty)
 		buffer.append("+\n")
 	print "".join(buffer)
+	
+	
+# -------- Text updates for remote training ------------
+def send_mail(msg):
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	server.login("EMAIL@gmail.com", "PASS")
+	server.sendmail("EMAIL@gmail.com", "NUMBER@vtext.com", msg) # change @vtext.com for carrier
+	server.quit() 
