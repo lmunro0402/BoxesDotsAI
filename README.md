@@ -1,7 +1,7 @@
 # ShallowBlue - A Boxes and Dots AI (Python 2.7.9)
-### ShallowBlue (SB) is a Deep Learning Neural Network (DLNN) built from scratch off of numpy. SB is trained using gradient descent (specifically Nesterov accelerated gradient) from recorded games. Recorded games are generated with the minimax algorithm and expert players.
+### ShallowBlue (SB) is a Neural Network (NN) built from scratch with python & numpy. SB is trained using gradient descent (specifically Nesterov accelerated gradient) from recorded games. Recorded games are generated with the minimax algorithm and expert players.
 
-##Objective: Create a competitve DLNN to play Boxes and Dots.
+##Objective: Create a competitve NN to play Boxes and Dots.
 
 ##Update: Currently creating artificial data w/ minimax.
 
@@ -44,7 +44,7 @@
 	
 - Reinforcement Learning. 
 
-- UC Berkeley has noted several strategies other than those listed here. I will not be looking into other algorithms since the focus of this project is the DLNN and minimax is sufficient for 3 x 3 games. 
+- UC Berkeley has noted several strategies other than those listed here. I will not be looking into other algorithms since the focus of this project is the NN and minimax is sufficient for 3 x 3 games. 
 See: https://math.berkeley.edu/~berlek/cgt/dots.html
 
 - Minimax Algorithm. Currently, to create artificial data, I am running a random AI vs a minimax depth 2 (mm2) and a mm2 vs a mm2 which switches to a mm5 after move 10. (The next few moves after 10 a critical. Having this extra depth allows the algorithm to make smart sacrifices to win the game). Winner is logged for training ShallowBlue.
