@@ -7,16 +7,20 @@ import random
 
 from sigNeuron import *
 from Player import *
+from Minimax import Minimax
 from utils import orderMoves
 from utils import makeCommands
 from utils import formatMoves
 from utils import onlyLegal
 from utils import cleanData
+from utils import assemble_state
+from utils import clean_game_state
 
 class NNet(Player):
 	"""Neural net class for systems with any # of hidden layers."""
 	def __init__(self, sizeIn, gridSize, layerList=map(int, np.loadtxt('weight_params.txt').tolist())):
 		Player.__init__(self, "ShallowBlue")
+		self.helperAI = Minimax(gridSize, 0)
 		self.sizeIn = sizeIn
 		self.gridSize = gridSize
 		self.numLayers = len(layerList)
@@ -29,7 +33,7 @@ class NNet(Player):
 				self.layers[i+1].append(Neuron(len(self.layers[i])+1, int(random.random()*100)))
 		self.oldUpdateVector = self.getWeights()*0
 
-	def getWeights(self): 
+	def getWeights(self):
 		layerWeights = []
 		layerWeights.append(np.zeros(shape=(self.layerList[0], self.sizeIn+1)))
 		for i in range(self.numLayers-1):
@@ -77,25 +81,34 @@ class NNet(Player):
 		return np.asarray(reg)
 
 
-	def getMove(self, data):
+	def getMove(self, game_state, HELP=True): # make help optional
 		a = []
 		z = []
-		a1 = cleanData(data)
-		game_state = a1
-		a.append(addBias(a1))
-		for i in range(self.numLayers):
-			z.append(computeZ(self.layers[i], a[i]))
-			temp = sigmoid(z[i])
-			a.append(addBias(temp))
-		# REMOVE BIAS IN OUTPUT
-		out = np.delete(a[self.numLayers], 0, axis=0)
-		# print out
-		moves = orderMoves(out)
-		# print moves
-		legalMoves = onlyLegal(moves, game_state)
-		# print legalMoves
-		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
-		return nextMoves[0]
+		a1 = cleanData(game_state)
+		clean_state = a1
+		total_moves = 2*(self.gridSize**2+self.gridSize) 
+		made_moves = sum(clean_game_state(game_state))
+		available_moves = total_moves - made_moves
+		if available_moves > 14 and HELP:
+			print "MM"
+			next_move = self.helperAI.getMove(game_state, 2)
+		else:
+			print 'SB'
+			a.append(addBias(a1))
+			for i in range(self.numLayers):
+				z.append(computeZ(self.layers[i], a[i]))
+				temp = sigmoid(z[i])
+				a.append(addBias(temp))
+			# REMOVE BIAS IN OUTPUT
+			out = np.delete(a[self.numLayers], 0, axis=0)
+			# print out
+			moves = orderMoves(out)
+			# print moves
+			legalMoves = onlyLegal(moves, clean_state)
+			# print legalMoves
+			nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
+			next_move = nextMoves[0]
+		return next_move
 
 # ----------------------- Gradient Descent Algorithms ----------------------------------------------------------
 
