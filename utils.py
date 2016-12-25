@@ -1,7 +1,7 @@
 # Utilities for translating AI moves to game
 #
 # Author: Luke Munro
-
+import smtplib
 import numpy as np
 
 # ---------- For Neural Net ----------------
@@ -122,3 +122,12 @@ def display_game(dim, game_state):
 			else: buffer.append(hEmpty)
 		buffer.append("+\n")
 	print "".join(buffer)
+
+# ---------------------------------------------------------------
+
+def send_mail(msg):
+	server = smtplib.SMTP('smtp.gmail.com', 587)
+	server.starttls()
+	server.login("tifmrp1324ip@gmail.com", "wussgood$$")
+	server.sendmail("tifmrp1324ip@gmail.com", "6504006400@vtext.com", msg)
+	server.quit() 
