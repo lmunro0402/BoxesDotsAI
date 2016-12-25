@@ -55,7 +55,8 @@ See: https://math.berkeley.edu/~berlek/cgt/dots.html
 
 - Remotely train on Raspberry Pi (will have to run for days)
 
-- Data logging - RandomAI vs mm2 and S0X (5 > X | Start with X = 1 progress to 4).
+- Data logging - RandomAI vs mm2 and S0X (3 > X | Start with X = 1 progress to 2). The deepest the minimax will need to go is 5 in the case of a chain for 4 and a chain of 5 to make a decision. However, we can set the max depth to 4 since one minimax has to win and we log him. 
 
 - Realizing that data is the biggest hurdle. 
 
+- 
