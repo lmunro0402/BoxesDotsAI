@@ -97,19 +97,19 @@ class NNet(Player):
 			a.append(addBias(temp))
 		# REMOVE BIAS IN OUTPUT
 		out = np.delete(a[self.numLayers], 0, axis=0)
-		print out
+		# print out
 		moves = orderMoves(out)
 		# print moves
 		legalMoves = onlyLegal(moves, clean_state)
 		# print legalMoves
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		next_moveSB = nextMoves[0]
-		# if made_moves < 12 and HELP:
-			# next_move = next_moveMM
-			# print next_moveSB
-		# else:
-		next_move = next_moveSB
-			# print next_moveMM
+		if made_moves < 12 and HELP:
+			next_move = next_moveMM
+			print next_moveSB
+		else:
+			next_move = next_moveSB
+			print next_moveMM
 		return next_move
 
 # ----------------------- Gradient Descent Algorithms ----------------------------------------------------------

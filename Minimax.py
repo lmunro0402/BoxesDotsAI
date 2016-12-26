@@ -25,7 +25,7 @@ class Minimax(Player):
 		branches = [0] * len(moves)
 		best_score = -9e99
 		best_move = moves[0] 
-		# max_play is not called first so a random good move will be picked
+		# FIRST MOVE IS EVALUATED HERE FOR RANDOMNESS
 		if depth > 0: 
 			for i, move in enumerate(moves):
 				clone = copy.deepcopy(G)
@@ -42,7 +42,10 @@ class Minimax(Player):
 			G.display_game()
 			print branches
 			print moves
-		rand_move = random.randint(0, num_best_moves(branches)-1)
+		if depth < 2: # RANDOM BAD AI
+			rand_move = random.randint(0, num_best_moves(branches)-1)
+		else: # TRAIN AI MAKE FIRST GOOD MOVE
+			rand_move = 0
 		return formatMoves(orderMoves(branches), moves)[rand_move]
 
 

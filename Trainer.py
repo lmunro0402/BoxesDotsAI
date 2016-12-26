@@ -5,6 +5,7 @@
 import numpy as np 
 import DeepNN as NN
 import utils as UTIL
+import sys as SYS
 
 class Trainer:
 	def __init__(self, sizeIn, gridSize, AI):
@@ -89,44 +90,56 @@ class Trainer:
 
 
 def main():
-	dim = int(input("Game size: "))
-	numMoves = 2*(dim**2+dim)
-	mode1 = input("Train (0) | View recorded games (1) | Create new AI (2):  ")
+	try:
+		dim = int(SYS.argv[1])
+		mode1 = int(SYS.argv[2])
+	except:
+		dim = int(input("Game size: "))
+		mode1 = input("Train (0) | View recorded games (1) | Create new AI (2):  ")
 
-	if mode1 == 0:
+	numMoves = 2*(dim**2+dim)
+
+	if mode1 == 0 or mode1 == 1:
 		try:
-			weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
-			print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
-			AI = NN.NNet(numMoves, dim)
+			file_num = SYS.argv[3]
 		except:
-			print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
-			raise SystemExit		
-		Ash = Trainer(numMoves, dim, AI)
-		for layer in range(len(weight_params)):
-			print AI.getWeights()[layer][0]
-			print AI.getWeights()[layer][1]
-		print "Weight preview completed. "
-		file_num = raw_input("Input extension of training file (string after #): ")
-		alpha = input("Enter Training Rate = ")
-		print "Extracting data. Please wait..."
-		Ash.train_from_record(alpha, file_num)
-		print "Trained weights preview"
-		for layer in range(len(weight_params)):
-			print AI.getWeights()[layer][0]
-	elif mode1 == 1:
-		# CREATE A PLACEHOLDER AI FOR TRAINER OBJECT
-		AI = NN.NNet(numMoves, dim, [10, numMoves])
-		Ash = Trainer(numMoves, dim, AI)
-		file_num = raw_input("Input file extension: ")
-		print "Please wait..."
-		print "FYI - These are one-sided, past state then new state."
-		games = Ash.data_from_record(file_num)
-		print "# Moves - " + str(len(games))
-		for state_index in range(0, len(games)):
-			state_pair = [UTIL.assemble_state(dim, games[state_index][0]),\
-				 								UTIL.assemble_state(dim, games[state_index][1])]
-			UTIL.relive_game_from_file(dim, state_pair)
-			raw_input("Press Enter to continue:")
+			file_num = raw_input("Input extension of training file (string after #): ")
+		if mode1 == 0:
+			try:
+				weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
+				print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
+				AI = NN.NNet(numMoves, dim)
+			except:
+				print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
+				raise SystemExit		
+			Ash = Trainer(numMoves, dim, AI)
+			for layer in range(len(weight_params)):
+				print AI.getWeights()[layer][0]
+				print AI.getWeights()[layer][1]
+			print "Weight preview completed. "
+			try:
+				alpha = int(SYS.argv[4]) 
+			except:
+				alpha = input("Enter Training Rate = ")
+			
+			print "Extracting data. Please wait..."
+			Ash.train_from_record(alpha, file_num)
+			print "Trained weights preview"
+			for layer in range(len(weight_params)):
+				print AI.getWeights()[layer][0]
+		elif mode1 == 1:
+			# CREATE A PLACEHOLDER AI FOR TRAINER OBJECT
+			AI = NN.NNet(numMoves, dim, [10, numMoves])
+			Ash = Trainer(numMoves, dim, AI)
+			print "Please wait..."
+			print "FYI - These are one-sided, past state then new state."
+			games = Ash.data_from_record(file_num)
+			print "# Moves - " + str(len(games))
+			for state_index in range(0, len(games)):
+				state_pair = [UTIL.assemble_state(dim, games[state_index][0]),\
+					 								UTIL.assemble_state(dim, games[state_index][1])]
+				UTIL.relive_game_from_file(dim, state_pair)
+				raw_input("Press Enter to continue:")
 	elif mode1 == 2:
 		weight_params = []
 		for i in range(input("Input # of layers: ")):
