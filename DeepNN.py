@@ -89,25 +89,27 @@ class NNet(Player):
 		total_moves = 2*(self.gridSize**2+self.gridSize) 
 		made_moves = sum(clean_game_state(game_state))
 		available_moves = total_moves - made_moves
-		if available_moves > 14 and HELP:
-			print "MM"
-			next_move = self.helperAI.getMove(game_state, 2)
-		else:
-			print 'SB'
-			a.append(addBias(a1))
-			for i in range(self.numLayers):
-				z.append(computeZ(self.layers[i], a[i]))
-				temp = sigmoid(z[i])
-				a.append(addBias(temp))
-			# REMOVE BIAS IN OUTPUT
-			out = np.delete(a[self.numLayers], 0, axis=0)
-			# print out
-			moves = orderMoves(out)
-			# print moves
-			legalMoves = onlyLegal(moves, clean_state)
-			# print legalMoves
-			nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
-			next_move = nextMoves[0]
+		next_moveMM = self.helperAI.getMove(game_state, 2)
+		a.append(addBias(a1))
+		for i in range(self.numLayers):
+			z.append(computeZ(self.layers[i], a[i]))
+			temp = sigmoid(z[i])
+			a.append(addBias(temp))
+		# REMOVE BIAS IN OUTPUT
+		out = np.delete(a[self.numLayers], 0, axis=0)
+		print out
+		moves = orderMoves(out)
+		# print moves
+		legalMoves = onlyLegal(moves, clean_state)
+		# print legalMoves
+		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
+		next_moveSB = nextMoves[0]
+		# if made_moves < 12 and HELP:
+			# next_move = next_moveMM
+			# print next_moveSB
+		# else:
+		next_move = next_moveSB
+			# print next_moveMM
 		return next_move
 
 # ----------------------- Gradient Descent Algorithms ----------------------------------------------------------

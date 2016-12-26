@@ -29,7 +29,7 @@ class Trainer:
 		else:
 			with open("move_record{0}#{1}.txt".format(self.gridSize, file_num), "a") as record:
 				record.write("#------- Player = " + self.pokedex[0] + " ------------- \n")
-				for pair in self.pokedex[1:]:
+				for pair in self.pokedex[5:]:
 					old_state = self.format_game_state(pair[0])
 					new_state = self.format_game_state(pair[1]) 
 					record.write(str(old_state)+"\n")
@@ -104,6 +104,7 @@ def main():
 		Ash = Trainer(numMoves, dim, AI)
 		for layer in range(len(weight_params)):
 			print AI.getWeights()[layer][0]
+			print AI.getWeights()[layer][1]
 		print "Weight preview completed. "
 		file_num = raw_input("Input extension of training file (string after #): ")
 		alpha = input("Enter Training Rate = ")

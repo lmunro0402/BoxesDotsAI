@@ -33,6 +33,10 @@ def main():
 		base2 = raw_input("Minimax bonus depth: ")
 		player2 = AI = Minimax(dim, base2)
 	elif mode2 == 0:	
+		# if not input("Enable helper AI (0) | No (1): "):
+		# 	HELP = True
+		# else:
+		# 	HELP = False
 		player2 = AI = NN.NNet(numMoves, dim)
 		try:
 			weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
