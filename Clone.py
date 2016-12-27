@@ -24,7 +24,7 @@ class Clone:
 		self.score += points
 
 	def is_game_over(self):
-		return (self.dim**2) != self.usedBoxes
+		return (self.dim**2) == self.usedBoxes
 
 	def move(self, move):
 		move = [int(x) for x in move.split(" ")]

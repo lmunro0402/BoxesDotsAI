@@ -83,8 +83,12 @@ class Trainer:
 			old_state = pair[0]
 			new_state = pair[1]
 			self.train_AI(alpha, old_state, new_state)
-			if i%5000 == 0:
-				print i
+			if i%round(i/len(training_data)) == 0:
+				progress = str(round(float(i)/num_games)*100) + "% completed " + file_num + "\n"
+				with open('{0}_progress.txt'.format(file_num), 'a') as f:
+					f.write(progress)
+				UTIL.send_mail(progress)
+				time.sleep(5)
 				self.AI.writeWeights()
 		self.AI.writeWeights()
 
@@ -115,7 +119,6 @@ def main():
 			Ash = Trainer(numMoves, dim, AI)
 			for layer in range(len(weight_params)):
 				print AI.getWeights()[layer][0]
-				print AI.getWeights()[layer][1]
 			print "Weight preview completed. "
 			try:
 				alpha = int(SYS.argv[4]) 

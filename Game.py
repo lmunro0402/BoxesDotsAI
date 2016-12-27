@@ -16,9 +16,7 @@ import copy
 
 
 def main():
-	DISPLAY = True
 	try:
-		print SYS.argv
 		dim = int(SYS.argv[1])
 		num_games = int(SYS.argv[2])
 		mode = int(SYS.argv[3])
@@ -42,6 +40,8 @@ def main():
 			base2 = raw_input("Minimax bonus depth: ")
 		if mode and mode2:
 			file_num = raw_input("Write data to which file? (#Depth1Depth2): ")
+		DISPLAY = True
+		TRAINING = False
 	
 	numMoves = 2*(dim**2+dim)
 
@@ -63,7 +63,7 @@ def main():
 			raise SystemExit
 	else:
 		print "Unknown command."
-	print DISPLAY
+
 	Trainer1 = Trainer(numMoves, dim, player1)
 	Trainer2 = Trainer(numMoves, dim, player2)
 
@@ -93,7 +93,7 @@ def main():
 			 	turns += 1
 		G.show_results()
 
-		if i%int(num_games/3.0) == 0 and TRAINING: # ARTIFICIAL DATA IS BEING CREATED
+		if i%(round(num_games/3.0)+1) == 0 and TRAINING: # ARTIFICIAL DATA IS BEING CREATED
 			progress = str(round((float(i)/num_games)*100)) + "% completed " + file_num + ".\n"
 			with open('{0}_progress.txt'.format(file_num), 'a') as f:
 				f.write(progress)

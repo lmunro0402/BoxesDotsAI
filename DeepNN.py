@@ -90,6 +90,7 @@ class NNet(Player):
 		made_moves = sum(clean_game_state(game_state))
 		available_moves = total_moves - made_moves
 		next_moveMM = self.helperAI.getMove(game_state, 2)
+		ending_move = self.helperAI.check_ending_chain(game_state)
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
@@ -104,7 +105,9 @@ class NNet(Player):
 		# print legalMoves
 		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
 		next_moveSB = nextMoves[0]
-		if made_moves < 12 and HELP:
+		if ending_move != []: # THERE IS AN ENDING MOVE
+			next_move = ending_move[0]
+		elif made_moves < 12 and HELP:
 			next_move = next_moveMM
 			print next_moveSB
 		else:

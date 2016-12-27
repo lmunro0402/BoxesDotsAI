@@ -42,15 +42,36 @@ class Minimax(Player):
 			G.display_game()
 			print branches
 			print moves
-		if depth < 2: # RANDOM BAD AI
+		if depth < 3: # RANDOM BAD AI
 			rand_move = random.randint(0, num_best_moves(branches)-1)
 		else: # TRAIN AI MAKE FIRST GOOD MOVE
 			rand_move = 0
 		return formatMoves(orderMoves(branches), moves)[rand_move]
 
 
+	def check_ending_chain(self, game_state, DEBUG=False):
+		G = Clone(self.dim, game_state)
+		moves = G.find_moves()
+		branches = [False] * len(moves)
+		winning_move = moves[0]
+		for i, move in enumerate(moves):
+			clone = copy.deepcopy(G)
+			old_usedBoxes = clone.usedBoxes
+			clone.move(move)
+			if old_usedBoxes < clone.usedBoxes:
+				branches[i] = continue_chain(clone)
+			else:
+				branches[i] = False
+		if DEBUG:
+			G.display_game()
+			print branches
+			print moves
+		# return filter(lambda x: x in branches, moves)
+		return [moves[i] for i, branch in enumerate(branches) if branch]
+
+
 def min_play(node, depth):
-	if not node.is_game_over() or node.depth == depth:
+	if node.is_game_over() or node.depth == depth:
 		return node.score
 	node.depth += 1
 	moves = node.find_moves()
@@ -71,7 +92,7 @@ def min_play(node, depth):
 
 
 def max_play(node, depth):
-	if not node.is_game_over() or node.depth == depth:
+	if node.is_game_over() or node.depth == depth:
 		return node.score
 	node.depth += 1
 	moves = node.find_moves()
@@ -91,11 +112,25 @@ def max_play(node, depth):
 	return best_score
 
 
+def continue_chain(node):
+	if node.is_game_over():
+		return True
+	moves = node.find_moves()
+	is_ending = False
+	for move in moves:
+		clone = copy.deepcopy(node)
+		old_usedBoxes = clone.usedBoxes
+		clone.move(move)
+		if old_usedBoxes < clone.usedBoxes:
+			is_ending = continue_chain(clone)
+	return is_ending
+
+
 def main(): # FOR SCENARIO DEPTH TESTING
-	m_state = [[1, 1, 1], [1, 1, 0, 1], [0, 0, 0], [1, 1, 1, 1], [0, 0, 0], [0, 1, 1, 0],\
-	[0, 0, 0]]
+	m_state = [[1, 1, 1], [1, 0, 1, 1], [0, 0, 1], [1, 1, 0, 1], [0, 0, 0], [1, 1, 1, 1],\
+	[1, 1, 1]]
 	AI = Minimax(2, 0)
-	print AI.getMove(m_state, 3, True)
+	print AI.check_ending_chain(m_state, True)
 
 
 if __name__=="__main__":
