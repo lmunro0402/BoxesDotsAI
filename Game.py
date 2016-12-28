@@ -46,13 +46,13 @@ def main():
 	numMoves = 2*(dim**2+dim)
 
 	if mode == 1:
-		player1 = Minimax(dim, base)
+		player1 = Minimax(dim, base, True)
 	elif mode == 0:
 		player1 = Player("Human")
 	else:
 		print "Unknown command."
 	if mode2 == 1:
-		player2 = AI = Minimax(dim, base2)
+		player2 = AI = Minimax(dim, base2, False)
 	elif mode2 == 0:	
 		player2 = AI = NN.NNet(numMoves, dim)
 		try:
@@ -134,7 +134,7 @@ def main():
 		Trainer2.clear_record()
 		G.reset()
 	if TRAINING:
-		UTIL.send_msg("Finished " + file_num + ".")
+		UTIL.send_mail("Finished " + file_num + ".")
 	print "Done playing."
 	print "Exiting..."
 

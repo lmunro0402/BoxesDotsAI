@@ -20,7 +20,7 @@ class NNet(Player):
 	"""Neural net class for systems with any # of hidden layers."""
 	def __init__(self, sizeIn, gridSize, layerList=map(int, np.loadtxt('weight_params.txt').tolist())):
 		Player.__init__(self, "ShallowBlue")
-		self.helperAI = Minimax(gridSize, 0)
+		self.helperAI = Minimax(gridSize, 0, False)
 		self.sizeIn = sizeIn
 		self.gridSize = gridSize
 		self.numLayers = len(layerList)
@@ -81,38 +81,38 @@ class NNet(Player):
 		return np.asarray(reg)
 
 
-	def getMove(self, game_state, HELP=True): # make help optional
+	def getMove(self, game_state):
+		# EARLY GAME - CREATE USUAL MIDGAME
+		total_moves = 2*(self.gridSize**2+self.gridSize) 
+		made_moves = sum(clean_game_state(game_state))
+		available_moves = total_moves - made_moves
+		# MID GAME - CHAIN & SACRIFICE DECISION
 		a = []
 		z = []
 		a1 = cleanData(game_state)
 		clean_state = a1
-		total_moves = 2*(self.gridSize**2+self.gridSize) 
-		made_moves = sum(clean_game_state(game_state))
-		available_moves = total_moves - made_moves
-		next_moveMM = self.helperAI.getMove(game_state, 2)
-		ending_move = self.helperAI.check_ending_chain(game_state)
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
-		# REMOVE BIAS IN OUTPUT
-		out = np.delete(a[self.numLayers], 0, axis=0)
-		# print out
+		out = np.delete(a[self.numLayers], 0, axis=0) # REMOVE BIAS IN OUTPUT
 		moves = orderMoves(out)
-		# print moves
 		legalMoves = onlyLegal(moves, clean_state)
-		# print legalMoves
-		nextMoves = formatMoves(legalMoves, makeCommands(self.gridSize))
-		next_moveSB = nextMoves[0]
-		if ending_move != []: # THERE IS AN ENDING MOVE
-			next_move = ending_move[0]
-		elif made_moves < 12 and HELP:
-			next_move = next_moveMM
-			print next_moveSB
+		NN_move = formatMoves(legalMoves, makeCommands(self.gridSize))
+		# END GAME - CHECK FOR ENDING SEQUENCE
+		if not self.helperAI.ENDING_SEQUENCE:
+			self.helperAI.check_ending_chain(game_state)
+		# CHOOSING GAME STATE
+		if made_moves < 12:
+			next_move = self.helperAI.getMove(game_state, 2)
+			print "MM"
+		elif self.helperAI.ENDING_SEQUENCE:
+			next_move = self.helperAI.getMove(game_state, 3) # 3 FOR 3 + 1 CHAIN SCENARIO
+			print "END"
 		else:
-			next_move = next_moveSB
-			print next_moveMM
+			next_move = NN_move[0]
+			print "SB"
 		return next_move
 
 # ----------------------- Gradient Descent Algorithms ----------------------------------------------------------

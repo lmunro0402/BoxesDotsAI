@@ -58,9 +58,12 @@ class Trainer:
 		return clean_data
 
 
-	def train_AI(self, alpha, old_state, new_state):
+	def train_AI(self, alpha, old_state, new_state, OPTIMIZED):
 		y = self.get_training_move(old_state, new_state)
-		self.AI.trainNAG(alpha, old_state, y)
+		if OPTIMIZED:
+			self.AI.trainNAG(alpha, old_state, y, 0.4)
+		else:
+			self.AI.train(alpha, old_state, y)
 
 	def get_training_move(self, old_state, new_state):
 		size = len(old_state)
@@ -75,15 +78,15 @@ class Trainer:
 		self.train_AI(alpha, old_state, new_state)
 
 
-	def train_from_record(self, alpha, file_num):
+	def train_from_record(self, alpha, file_num, OPTIMIZED=True):
 		training_data = self.data_from_record(file_num)
 		print "Total moves - " + str(len(training_data))
 		print "Current progress: "
 		for i, pair in enumerate(training_data):
 			old_state = pair[0]
 			new_state = pair[1]
-			self.train_AI(alpha, old_state, new_state)
-			if i%round(i/len(training_data)) == 0:
+			self.train_AI(alpha, old_state, new_state, OPTIMIZED)
+			if i%(round(len(training_data)/3.0)+1) == 0:
 				progress = str(round(float(i)/num_games)*100) + "% completed " + file_num + "\n"
 				with open('{0}_progress.txt'.format(file_num), 'a') as f:
 					f.write(progress)
@@ -130,6 +133,9 @@ def main():
 			print "Trained weights preview"
 			for layer in range(len(weight_params)):
 				print AI.getWeights()[layer][0]
+			final_msg = "Finished training."
+			print final_msg
+			UTIL.send_mail(final_msg)
 		elif mode1 == 1:
 			# CREATE A PLACEHOLDER AI FOR TRAINER OBJECT
 			AI = NN.NNet(numMoves, dim, [10, numMoves])
