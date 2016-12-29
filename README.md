@@ -45,7 +45,7 @@ The answer: ehh okay. The deciding factor is how well the Neural Network perform
 - Minimax helper for early and end game                                     12/27
 
 
-#Goals & Thoughts:
+##Goals & Thoughts:
 - Optimization of Gradient Descent by decreasing alpha on cost function and/or theta bounces
 	- Start with first layer deeper layers weights not stable 
 	- Momentum and Nesterov accelerated gradient
