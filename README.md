@@ -10,7 +10,7 @@
 - End game (kind of) - Look for ending sequence: 
 	While the Neural Net plays there is a sleeper AI running in the background looking for a winning/ending sequence of moves. If it spots a way to score a majority amount of boxes, 5 in our case (NN is only trained for 3 x 3), it takes control and wins the game otherwise, if no opportunity presents itself, it will lie dormat. 
 
-###Recap: How good is ShallowBlue?
+##How good is ShallowBlue?
 The answer: ehh okay. The deciding factor is how well the Neural Network performs. Unfortunately, I build the entire network from scratch off of numpy and couldn't find a database of games. Thus, the backpropagation is not optimized for any hardware (runs slow) and I also had to create the training data. This is very computationally expensive and takes a lot of time so I'm constantly having to create more data and train. Eventually it should get much better but it will be a while. FYI there are over 16 billion possible game states. However, I learned a lot from this project and will continue to improve the NN. In the meantime, TensorFlow is definitely the move :)
 
 ##Strategy: 
