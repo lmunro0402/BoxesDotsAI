@@ -1,4 +1,4 @@
-# Minimax algorithm 
+# Minimax Algorithm 
 #
 # Author: Luke Munro
 
@@ -93,14 +93,16 @@ class Minimax(Player):
 # -------------- ENDING SEQUENCE FOR SHALLOWBLUE -----------------
 
 
-	def check_ending_chain(self, game_state, DEBUG=False):
-		G = Clone(self.dim, game_state)
-		self.ENDING_SEQUENCE = self.continue_chain(G)
+	def check_ending_chain(self, game_state, current_score, DEBUG=False):
+		initial_state = Clone(self.dim, game_state)
+		initial_state.plus(current_score)
+		self.ENDING_SEQUENCE = self.continue_chain(initial_state)
 		if DEBUG:
 			G.display_game()
 
 
 	def continue_chain(self, node, DEBUG=False):
+		print node.score
 		if node.is_game_over() or node.score >= 5:
 			return True
 		moves = node.find_moves()

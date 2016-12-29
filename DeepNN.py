@@ -80,13 +80,7 @@ class NNet(Player):
 			reg.append(Lambda * w)
 		return np.asarray(reg)
 
-
-	def getMove(self, game_state):
-		# EARLY GAME - CREATE USUAL MIDGAME
-		total_moves = 2*(self.gridSize**2+self.gridSize) 
-		made_moves = sum(clean_game_state(game_state))
-		available_moves = total_moves - made_moves
-		# MID GAME - CHAIN & SACRIFICE DECISION
+	def forwardPropagate(self, game_state):
 		a = []
 		z = []
 		a1 = cleanData(game_state)
@@ -99,20 +93,27 @@ class NNet(Player):
 		out = np.delete(a[self.numLayers], 0, axis=0) # REMOVE BIAS IN OUTPUT
 		moves = orderMoves(out)
 		legalMoves = onlyLegal(moves, clean_state)
-		NN_move = formatMoves(legalMoves, makeCommands(self.gridSize))
+		next_moves = formatMoves(legalMoves, makeCommands(self.gridSize))
+		return next_moves[0]
+
+
+	def getMove(self, game_state):
+		# EARLY GAME - CREATE USUAL MIDGAME
+		total_moves = 2*(self.gridSize**2+self.gridSize) 
+		made_moves = sum(clean_game_state(game_state))
+		available_moves = total_moves - made_moves
+		# MID GAME - CHAIN & SACRIFICE DECISIONS
+		NN_move = self.forwardPropagate(game_state)
 		# END GAME - CHECK FOR ENDING SEQUENCE
 		if not self.helperAI.ENDING_SEQUENCE:
-			self.helperAI.check_ending_chain(game_state)
+			self.helperAI.check_ending_chain(game_state, self.getScore())
 		# CHOOSING GAME STATE
 		if made_moves < 12:
 			next_move = self.helperAI.getMove(game_state, 2)
-			print "MM"
 		elif self.helperAI.ENDING_SEQUENCE:
 			next_move = self.helperAI.getMove(game_state, 3) # 3 FOR 3 + 1 CHAIN SCENARIO
-			print "END"
 		else:
-			next_move = NN_move[0]
-			print "SB"
+			next_move = NN_move
 		return next_move
 
 # ----------------------- Gradient Descent Algorithms ----------------------------------------------------------

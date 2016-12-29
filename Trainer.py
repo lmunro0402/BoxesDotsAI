@@ -1,4 +1,4 @@
-# Training Object
+# Trainer Class
 #
 # Author: Luke Munro
 
@@ -6,6 +6,7 @@ import numpy as np
 import DeepNN as NN
 import utils as UTIL
 import sys as SYS
+import time
 
 class Trainer:
 	def __init__(self, sizeIn, gridSize, AI):
@@ -80,14 +81,15 @@ class Trainer:
 
 	def train_from_record(self, alpha, file_num, OPTIMIZED=True):
 		training_data = self.data_from_record(file_num)
-		print "Total moves - " + str(len(training_data))
+		num_moves = len(training_data)
+		print "Total moves - " + str(num_moves)
 		print "Current progress: "
 		for i, pair in enumerate(training_data):
 			old_state = pair[0]
 			new_state = pair[1]
 			self.train_AI(alpha, old_state, new_state, OPTIMIZED)
-			if i%(round(len(training_data)/3.0)+1) == 0:
-				progress = str(round(float(i)/num_games)*100) + "% completed " + file_num + "\n"
+			if i%(round(num_moves/3.0)+1) == 0:
+				progress = str(round(float(i)/num_moves)*100) + "% completed " + file_num + "\n"
 				with open('{0}_progress.txt'.format(file_num), 'a') as f:
 					f.write(progress)
 				UTIL.send_mail(progress)

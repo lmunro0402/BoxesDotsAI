@@ -1,4 +1,4 @@
-# Utilities for translating AI moves to game
+# Utilities for translating AI moves to game and Trainer
 #
 # Author: Luke Munro
 import smtplib

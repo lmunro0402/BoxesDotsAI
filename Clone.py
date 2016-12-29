@@ -1,4 +1,4 @@
-# Game simulation for minimax 
+# Game simulation nodes for Minimax
 #
 # Author: Luke Munro
 
