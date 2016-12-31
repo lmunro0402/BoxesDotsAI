@@ -18,7 +18,6 @@ class Minimax(Player):
 		self.dim = dim
 		self.base = base
 		self.random = random
-		self.ENDING_SEQUENCE = False
 
 	def getMove(self, game_state, depth, DEBUG=False):
 		G = Clone(self.dim, game_state) 
@@ -43,7 +42,7 @@ class Minimax(Player):
 			G.display_game()
 			print branches
 			print moves
-		if self.random == True: # RANDOM BAD AI 
+		if self.random: # RANDOM BAD AI 
 			rand_move = random.randint(0, num_best_moves(branches)-1)
 		else: # TRAIN AI MAKE FIRST GOOD MOVE
 			rand_move = 0
