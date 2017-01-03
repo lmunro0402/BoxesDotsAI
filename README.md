@@ -13,6 +13,8 @@
 ##How good is ShallowBlue currently?
 The answer: ehh okay. The deciding factor is how well the Neural Network performs. Unfortunately, I build the entire network from scratch off of numpy and couldn't find a database of games. Thus, the backpropagation is not optimized for any hardware (runs slow) and I also had to create the training data. This is very computationally expensive and takes a lot of time so I'm constantly having to create more data and train. Eventually it should get much better but it will be a while. FYI there are over 16 billion possible game states. However, I learned a lot from this project and will continue to improve the NN. In the meantime, TensorFlow is definitely the move :)
 
+##New Objective: Have ShallowBlue beat my mom in a best of three.
+
 ##Strategy: 
 - 1) Start with 2 x 2 board
 - 2) Play people 

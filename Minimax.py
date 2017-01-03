@@ -18,28 +18,29 @@ class Minimax(Player):
 		self.dim = dim
 		self.base = base
 		self.random = random
+		self.ENDING_SEQUENCE = False
 
 	def getMove(self, game_state, depth, DEBUG=False):
-		G = Clone(self.dim, game_state) 
-		moves = G.find_moves()
+		initial_node = Clone(game_state) 
+		moves = initial_node.find_moves()
 		branches = [0] * len(moves)
 		best_score = -9e99
 		best_move = moves[0] 
 		# FIRST MOVE IS EVALUATED HERE FOR RANDOMNESS
 		if depth > 0: 
 			for i, move in enumerate(moves):
-				clone = copy.deepcopy(G)
+				clone = copy.deepcopy(initial_node)
 				old_usedBoxes = clone.usedBoxes
 				clone.move(move)
+				clone.depth += 1
 				if old_usedBoxes < clone.usedBoxes:
 					branches[i] += (clone.usedBoxes - old_usedBoxes)
-					clone.depth += 1
 					score = self.max_play(clone, depth)
 				else:
 					score = self.min_play(clone, depth)
 				branches[i] += score
 		if DEBUG:
-			G.display_game()
+			initial_node.display_game()
 			print branches
 			print moves
 		if self.random: # RANDOM BAD AI 
@@ -47,6 +48,31 @@ class Minimax(Player):
 		else: # TRAIN AI MAKE FIRST GOOD MOVE
 			rand_move = 0
 		return formatMoves(orderMoves(branches), moves)[rand_move]
+
+	def rankMoves(self, game_state, depth, DEBUG=False):
+		initial_node = Clone(game_state)
+		all_moves = makeCommands(self.dim)
+		legal_moves = initial_node.find_moves()
+		ranks = [0] * len(all_moves)
+		if depth>0:
+			for move in legal_moves:
+				i = all_moves.index(move)
+				clone = copy.deepcopy(initial_node)
+				old_usedBoxes = clone.usedBoxes
+				clone.move(move)
+				clone.depth += 1
+				if old_usedBoxes < clone.usedBoxes:
+					ranks[i] += (clone.usedBoxes - old_usedBoxes)
+					score = self.max_play(clone, depth)
+				else:
+					score = self.min_play(clone, depth)
+				ranks[i] += score
+		if DEBUG:
+			initial_node.display_game()
+			print ranks
+			print all_moves
+		return ranks
+
 
 	def min_play(self, node, depth):
 		if node.is_game_over() or node.depth == depth:
@@ -93,7 +119,7 @@ class Minimax(Player):
 
 
 	def check_ending_chain(self, game_state, current_score, DEBUG=False):
-		initial_state = Clone(self.dim, game_state)
+		initial_state = Clone(game_state)
 		initial_state.plus(current_score)
 		self.ENDING_SEQUENCE = self.continue_chain(initial_state)
 		if DEBUG:
@@ -101,7 +127,6 @@ class Minimax(Player):
 
 
 	def continue_chain(self, node, DEBUG=False):
-		print node.score
 		if node.is_game_over() or node.score >= 5:
 			return True
 		moves = node.find_moves()
@@ -124,11 +149,11 @@ class Minimax(Player):
 
 
 def main(): # FOR SCENARIO DEPTH TESTING
-	m_state = [[1, 1, 0], [1, 1, 1, 0], [0, 0, 0], [1, 1, 1, 0], [0, 0, 0], [1, 0, 1, 0],\
-	[1, 1, 0]]
-	AI = Minimax(2, 0)
+	m_state = [[1, 1, 1], [1, 1, 1, 1], [1, 1, 1], [1, 1, 1, 1], [1, 1, 1], [0, 0, 0, 0],\
+	[0, 0, 0]]
+	AI = Minimax(3, 0)
 	AI.check_ending_chain(m_state, True)
-	print AI.ENDING_SEQUENCE
+	AI.rankMoves(m_state, 2, True)
 
 
 if __name__=="__main__":

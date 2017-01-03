@@ -7,15 +7,10 @@ import copy
 import random
 
 class Clone:
-	def __init__(self, dim, game_state=[]):
+	def __init__(self, game_state):
 		self.score = 0
 		self.depth = 0
 		self.game_state = game_state
-		if game_state == []:
-			for i in range(self.dim):
-				self.game_state.append([0]*dim)
-				self.game_state.append([0]*(dim+1))
-			self.game_state.append([0]*dim)
 		self.dim = len(game_state)//2
 		self.usedBoxes = 0
 		self.check_boxes()

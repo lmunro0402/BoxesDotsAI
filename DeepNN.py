@@ -85,7 +85,9 @@ class NNet(Player):
 		z = []
 		a1 = cleanData(game_state)
 		clean_state = a1
-		a.append(addBias(a1))
+		ranks = np.array([[i] for i in self.helperAI.rankMoves(game_state, 2)])
+		c1 = np.concatenate((a1, ranks), axis=0)
+		a.append(addBias(c1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
@@ -138,7 +140,10 @@ class NNet(Player):
 			noBiasWeights[i] = rmBias(weights)
 		deltas = []
 		# EDIT THIS IF CHANGING COST FUNCTION
-		initialDelta = (out - y) * sigGradient(z[len(z)-1])
+		# MEAN SQUARED
+		# initialDelta = (out - y) * sigGradient(z[len(z)-1])
+		# LOG COST
+		initialDelta = (out - y)
 		deltas.append(initialDelta)
 		for x in range(self.numLayers-2, -1, -1):
 			deltaIndex = (self.numLayers-2) - x

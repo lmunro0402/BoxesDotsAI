@@ -154,11 +154,11 @@ def main():
 	elif mode1 == 2:
 		weight_params = []
 		for i in range(input("Input # of layers: ")):
-			weight_params.append(input("Layer {0}\n Input # of nodes: ".format(i)))
+			weight_params.append(input("Layer {0}\n # of nodes: ".format(i)))
 		weight_params.append(numMoves) 
 		raw_input("Press enter to create new AI **WARNING: This overrides any existing AI! CTRL+C to exit now.**: ")
 		print "Initializing layers - " + str(weight_params[:len(weight_params)-1])
-		AI = NN.NNet(numMoves, dim, weight_params)
+		AI = NN.NNet(numMoves*2, dim, weight_params)
 		np.savetxt('weight_params.txt', np.asarray(weight_params)) # using np cause it's shorter. 
 		AI.writeWeights()
 	else:

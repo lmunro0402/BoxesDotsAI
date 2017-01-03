@@ -22,15 +22,20 @@ def main():
 		mode = int(SYS.argv[3])
 		if mode:
 			base = SYS.argv[4]
-		mode2 = int(SYS.argv[5])
-		if mode2:
-			base2 = SYS.argv[6]
+			mode2 = int(SYS.argv[5])
+			if mode2:
+				base2 = SYS.argv[6]
+		else:
+			mode2 = int(SYS.argv[4])
+			if mode2:
+				base2 = SYS.argv[5]
 		if mode and mode2:
-				file_num = SYS.argv[7]
+			file_num = SYS.argv[len(SYS.argv)-1]
+
 		DISPLAY = False
 		TRAINING = True
 	except:
-		dim = input("Size of grid: ")
+		dim = 3 #input("Size of grid: ")
 		num_games = input("How many games: ")
 		mode = input("Player 1 is?\n You (0) | Minimax (1): ")
 		if mode:
@@ -54,7 +59,7 @@ def main():
 	if mode2 == 1:
 		player2 = AI = Minimax(dim, base2, False)
 	elif mode2 == 0:	
-		player2 = AI = NN.NNet(numMoves, dim)
+		player2 = AI = NN.NNet(numMoves*2, dim)
 		try:
 			weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
 			print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
