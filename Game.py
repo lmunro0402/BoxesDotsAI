@@ -59,7 +59,7 @@ def main():
 	if mode2 == 1:
 		player2 = AI = Minimax(dim, base2, False)
 	elif mode2 == 0:	
-		player2 = AI = NN.NNet(numMoves*2, dim)
+		player2 = AI = NN.NNet(numMoves, dim)
 		try:
 			weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
 			print "Loaded layers - " + str(weight_params[:len(weight_params)-1])

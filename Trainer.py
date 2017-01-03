@@ -93,7 +93,7 @@ class Trainer:
 			new_state = pair[1]
 			self.train_AI(alpha, old_state, new_state, OPTIMIZED)
 			if i%(round(num_moves/3.0)+1) == 0:
-				progress = str(round(float(i)/num_moves)*100) + "% completed " + file_num + "\n"
+				progress = str(round(float(i)/num_moves, 2)*100) + "% completed " + file_num + "\n"
 				with open('{0}_progress.txt'.format(file_num), 'a') as f:
 					f.write(progress)
 				UTIL.send_mail(progress)
@@ -103,7 +103,7 @@ class Trainer:
 
 	def remake_games(self, dim, clean_game_state):
 		game_state = UTIL.assemble_state(dim, clean_game_state)
-		ranks = self.Minimax.rankMoves(game_state, 2)
+		ranks = self.Minimax.rankMoves(game_state, 3)
 		return ranks
 
 def main():
@@ -125,7 +125,7 @@ def main():
 			try:
 				weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
 				print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
-				AI = NN.NNet(numMoves*2, dim)
+				AI = NN.NNet(numMoves, dim)
 			except:
 				print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
 				raise SystemExit		
@@ -166,7 +166,7 @@ def main():
 		weight_params.append(numMoves) 
 		raw_input("Press enter to create new AI **WARNING: This overrides any existing AI! CTRL+C to exit now.**: ")
 		print "Initializing layers - " + str(weight_params[:len(weight_params)-1])
-		AI = NN.NNet(numMoves*2, dim, weight_params)
+		AI = NN.NNet(numMoves, dim, weight_params)
 		np.savetxt('weight_params.txt', np.asarray(weight_params)) # using np cause it's shorter. 
 		AI.writeWeights()
 	else:

@@ -149,11 +149,11 @@ class Minimax(Player):
 
 
 def main(): # FOR SCENARIO DEPTH TESTING
-	m_state = [[1, 1, 1], [1, 1, 1, 1], [1, 1, 1], [1, 1, 1, 1], [1, 1, 1], [0, 0, 0, 0],\
-	[0, 0, 0]]
+	m_state = [[1, 1, 1], [0, 0, 0, 0], [1, 1, 0], [0, 0, 0, 0], [1, 1, 1], [0, 0, 0, 0],\
+	[1, 1, 1]]
 	AI = Minimax(3, 0)
-	AI.check_ending_chain(m_state, True)
-	AI.rankMoves(m_state, 2, True)
+	# AI.check_ending_chain(m_state, True)
+	print AI.rankMoves(m_state, 5, True)
 
 
 if __name__=="__main__":
