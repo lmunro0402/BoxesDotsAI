@@ -7,6 +7,7 @@ import DeepNN as NN
 import utils as UTIL
 import sys as SYS
 import time
+from Minimax import Minimax
 
 class Trainer:
 	def __init__(self, sizeIn, gridSize, AI):
@@ -15,6 +16,7 @@ class Trainer:
 		self.AI = AI # can just be a player but we only train AIs
 		self.playerName = AI.getName()
 		self.pokedex = [self.playerName]
+		self.Minimax = Minimax(3, 0)
 
 
 	def format_game_state(self, state):
@@ -61,8 +63,10 @@ class Trainer:
 
 	def train_AI(self, alpha, old_state, new_state, OPTIMIZED):
 		y = self.get_training_move(old_state, new_state)
+		data_input = self.remake_games(3, old_state) + old_state
+		print data_input
 		if OPTIMIZED:
-			self.AI.trainNAG(alpha, old_state, y, 0.4)
+			self.AI.trainNAG(alpha, data_input, y, 0.4)
 		else:
 			self.AI.train(alpha, old_state, y)
 
@@ -97,6 +101,10 @@ class Trainer:
 				self.AI.writeWeights()
 		self.AI.writeWeights()
 
+	def remake_games(self, dim, clean_game_state):
+		game_state = UTIL.assemble_state(dim, clean_game_state)
+		ranks = self.Minimax.rankMoves(game_state, 2)
+		return ranks
 
 def main():
 	try:
@@ -117,7 +125,7 @@ def main():
 			try:
 				weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
 				print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
-				AI = NN.NNet(numMoves, dim)
+				AI = NN.NNet(numMoves*2, dim)
 			except:
 				print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
 				raise SystemExit		
@@ -126,7 +134,7 @@ def main():
 				print AI.getWeights()[layer][0]
 			print "Weight preview completed. "
 			try:
-				alpha = int(SYS.argv[4]) 
+				alpha = float(SYS.argv[4]) 
 			except:
 				alpha = input("Enter Training Rate = ")
 			
