@@ -64,9 +64,8 @@ class Trainer:
 	def train_AI(self, alpha, old_state, new_state, OPTIMIZED):
 		y = self.get_training_move(old_state, new_state)
 		data_input = self.remake_games(3, old_state) + old_state
-		print data_input
 		if OPTIMIZED:
-			self.AI.trainNAG(alpha, data_input, y, 0.4)
+			self.AI.trainNAG(alpha, old_state, y, 0.4)
 		else:
 			self.AI.train(alpha, old_state, y)
 
