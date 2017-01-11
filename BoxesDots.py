@@ -45,7 +45,6 @@ class BoxesDots:
 		return depth
 
 
-
 	def getDim(self):
 		return self.dim
 

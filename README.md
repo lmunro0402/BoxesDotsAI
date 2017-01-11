@@ -14,18 +14,17 @@
 The answer: ehh okay. The deciding factor is how well the Neural Network performs. Unfortunately, I build the entire network from scratch off of numpy and couldn't find a database of games. Thus, the backpropagation is not optimized for any hardware (runs slow) and I also had to create the training data. This is very computationally expensive and takes a lot of time so I'm constantly having to create more data and train. Eventually it should get much better but it will be a while. FYI there are over 16 billion possible game states. However, I learned a lot from this project and will continue to improve the NN. In the meantime, TensorFlow is definitely the move :)
 
 ##New Objective: Have ShallowBlue beat my mom in a best of three.
+##Status: Mom make ShallowBlue wish he never even learned the minimax algorithm (0/3). 
 
-##Strategy: 
-- 1) Start with 2 x 2 board
-- 2) Play people 
-    - Supervised learning from people's moves
-    - Log all lost games
-- 2) Create minmax algorithm
-    - Experiment with # of layers and nodes 
-    - Have DLN replicate minmax algorithm
-- 3) Ply experts 
-    - Make correct decisions at critcal states mid game
-    - Play minimax w/ more depth
+##How to play:
+- Download files
+- Run python Game.py 
+- Open Move_Diagram.txt for reference
+- Follow directions and pick who will play
+- Input moves seperated by a space.
+Input 2 numbers: Row then Column (ex. first vertical line would be 10): 0 0 (This is horizontal top left)
+- You must make a unit box to score.
+- Note: ShallowBlue's Neural Net has not been trained well. I'll upload better weights when I have them. 
 
 ##Current Progress:
 - Boxes & Dots game created                                                 11/24
@@ -45,6 +44,7 @@ The answer: ehh okay. The deciding factor is how well the Neural Network perform
 - Optimized minimax depth for recording games 				    12/20
 - Started training on PI                                                    12/21
 - Minimax helper for early and end game                                     12/27
+- Attempting to expand input data to require less training                  1/3
 
 
 ##Goals & Thoughts:

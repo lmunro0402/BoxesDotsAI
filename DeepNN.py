@@ -85,15 +85,12 @@ class NNet(Player):
 		z = []
 		a1 = cleanData(game_state)
 		clean_state = a1
-		# ranks = np.array([[i] for i in self.helperAI.rankMoves(game_state, 3)])
-		# c1 = np.concatenate((a1, ranks), axis=0)
 		a.append(addBias(a1))
 		for i in range(self.numLayers):
 			z.append(computeZ(self.layers[i], a[i]))
 			temp = sigmoid(z[i])
 			a.append(addBias(temp))
 		out = np.delete(a[self.numLayers], 0, axis=0) # REMOVE BIAS IN OUTPUT
-		print out
 		moves = orderMoves(out)
 		legalMoves = onlyLegal(moves, clean_state)
 		next_moves = formatMoves(legalMoves, makeCommands(self.gridSize))
