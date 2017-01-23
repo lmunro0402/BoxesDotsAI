@@ -62,7 +62,7 @@ See: https://math.berkeley.edu/~berlek/cgt/dots.html
 
 - Remotely train on Raspberry Pi (will have to run for days)
 
-- Data logging - RandomAI vs mm2 and S0X (3 > X | Start with X = 1 progress to 2). The deepest the minimax will need to go is 5 in the case of a chain for 4 and a chain of 5 to make a decision. However, we can set the max depth to 4 since one minimax has to win and we log him. 
+- Data logging - RandomAI vs mm2 and S0X (3 > X | Start with X = 1 progress to 2). The deepest the minimax will need to go is 6 in the case of a chain for 4 and a chain of 5 to make a decision. However, we can set the max depth to 5 since one minimax has to win and we log him. 
 
 - As this project is drawing to an end, I'm realizing what's really needed is CPU power and tons^(tons) of training data. Playing and training against the minimax works well but games take too long ~ 5 sec w/ current depth. To actually train Shallow Blue, I'll need in the millions of recorded games. I could optimize the Minimax algorithm more (pruning), or even implement the Monte Carlo search tree to speed things up. However, the real issue is CPU power. Even with the necessary data just trainng takes a very long time. So, get more CPU power, optimize minimax, or a lot of time to get Shallow Blue to a competitve level.
 
