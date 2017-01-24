@@ -45,7 +45,7 @@ Input 2 numbers: Row then Column (ex. first vertical line would be 10): 0 0 (Thi
 - Started training on PI                                                    12/21
 - Minimax helper for early and end game                                     12/27
 - Attempting to expand input data to require less training                  1/3
-
+- Remote training on server, setup text updates 			    1/15
 
 ##Goals & Thoughts:
 - Optimization of Gradient Descent by decreasing alpha on cost function and/or theta bounces
