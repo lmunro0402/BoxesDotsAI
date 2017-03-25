@@ -40,7 +40,7 @@ class Trainer:
 					record.write(str(new_state)+"\n")
 					record.write("#---------- Next Move ------------\n")
 				record.write("#\n")
-			# CLEARING RECORD
+			# CLEARING RECORD FOR NEW GAME
 			self.clear_record()
 
 	def clear_record(self):
@@ -100,24 +100,41 @@ class Trainer:
 				self.AI.writeWeights()
 		self.AI.writeWeights()
 
-	def remake_games(self, dim, clean_game_state):
-		game_state = UTIL.assemble_state(dim, clean_game_state)
+	def remake_games(self, dim, game_vector):
+		game_state = UTIL.assemble_state(dim, game_vector)
 		ranks = self.Minimax.rankMoves(game_state, 3)
 		return ranks
 
+	def check_progress(self, file_num):
+		correct = 0
+		wrong = 0
+		test_data = self.data_from_record(file_num)[::3]
+		total = len(test_data)
+		for i, pair in enumerate(test_data):
+			game_vector = pair[0]
+			game_state = UTIL.assemble_state(3, game_vector)
+			expected_state = pair[1]
+			out = self.AI.getMove(game_state)
+			if out == expected_state:
+				correct += 1
+			else:
+				wrong += 1
+		print (float(correct)/total) * 100
+
+
 def main():
 	try:
-		dim = int(SYS.argv[1])
-		mode1 = int(SYS.argv[2])
+		dim = 3 #int(SYS.argv[1])
+		mode1 = int(SYS.argv[1])
 	except:
-		dim = int(input("Game size: "))
-		mode1 = input("Train (0) | View recorded games (1) | Create new AI (2):  ")
+		dim = 3 #int(input("Game size: "))
+		mode1 = input("Train (0) | View recorded games (1) | Test (2) | Create new AI (3):  ")
 
 	numMoves = 2*(dim**2+dim)
 
-	if mode1 == 0 or mode1 == 1:
+	if mode1 <= 2:
 		try:
-			file_num = SYS.argv[3]
+			file_num = SYS.argv[2]
 		except:
 			file_num = raw_input("Input extension of training file (string after #): ")
 		if mode1 == 0:
@@ -133,7 +150,7 @@ def main():
 				print AI.getWeights()[layer][0]
 			print "Weight preview completed. "
 			try:
-				alpha = float(SYS.argv[4]) 
+				alpha = float(SYS.argv[3]) 
 			except:
 				alpha = input("Enter Training Rate = ")
 			
@@ -158,7 +175,19 @@ def main():
 					 								UTIL.assemble_state(dim, games[state_index][1])]
 				UTIL.relive_game_from_file(dim, state_pair)
 				raw_input("Press Enter to continue:")
-	elif mode1 == 2:
+		elif mode1 == 2:
+			print "Add this functionality"
+		else:
+			try:
+				weight_params = map(int, np.loadtxt('weight_params.txt').tolist())
+				print "Loaded layers - " + str(weight_params[:len(weight_params)-1])
+				AI = NN.NNet(numMoves, dim)
+			except:
+				print "Failed to load AI. It seems somethings wrong. Try initilizing an AI."
+				raise SystemExit
+			Ash = Trainer(numMoves, dim, AI)
+			Ash.check_progress(file_num)
+	elif mode1 == 3:
 		weight_params = []
 		for i in range(input("Input # of layers: ")):
 			weight_params.append(input("Layer {0}\n # of nodes: ".format(i)))

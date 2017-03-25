@@ -76,6 +76,8 @@ class Minimax(Player):
 
 	def min_play(self, node, depth):
 		if node.is_game_over() or node.depth == depth:
+			# if node.is_game_over(): # check over this later
+			# 	return -9e99	
 			return node.score
 		node.depth += 1
 		moves = node.find_moves()

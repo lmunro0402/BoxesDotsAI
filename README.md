@@ -1,4 +1,4 @@
-# ShallowBlue - A Boxes and Dots AI (Python 2.7.9)
+# ShallowBlue - A Boxes and Dots AI (Python 2.7)
 
 ###Overview: ShallowBlue (SB) is an AI that utilizes a Neural Network (NN) and the Minimax algorithm to play Boxes and Dots. The NN is trained using stochastic gradient descent (specifically Nesterov accelerated gradient) from games created by the Minimax algorithm playing itself with optimal depth.
 
